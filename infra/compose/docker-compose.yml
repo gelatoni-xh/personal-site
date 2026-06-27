@@ -1,6 +1,6 @@
 services:
   personal-site:
-    image: ${PERSONAL_SITE_IMAGE:-ghcr.io/OWNER/personal-site:latest}
+    image: ${PERSONAL_SITE_IMAGE:-personal-site:latest}
     container_name: personal-site
     restart: unless-stopped
     env_file:
