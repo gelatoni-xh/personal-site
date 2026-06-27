@@ -1,0 +1,155 @@
+\documentclass[10pt]{article}
+
+\usepackage[a4paper,margin=1.4cm]{geometry}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{array}
+\usepackage{setspace}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont{Alibaba PuHuiTi}
+\setCJKsansfont{Alibaba PuHuiTi}
+\setCJKmonofont{STSong}
+
+\definecolor{heading}{HTML}{1F2937}
+\definecolor{textgray}{HTML}{4B5563}
+\definecolor{rulegray}{HTML}{D1D5DB}
+\definecolor{subtle}{HTML}{6B7280}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlist[itemize]{leftmargin=1.2em,itemsep=1pt,topsep=2pt,parsep=0pt,partopsep=0pt}
+\hypersetup{colorlinks=true,urlcolor=black}
+\setstretch{1.08}
+
+\titleformat{\section}{\large\bfseries\color{heading}}{}{0pt}{}[\vspace{1.5pt}\color{rulegray}\titlerule]
+\titlespacing*{\section}{0pt}{9pt}{6pt}
+
+\newcommand{\resumeEntry}[4]{
+  \begin{tabularx}{\textwidth}{@{}X>{\raggedleft\arraybackslash}p{5.2cm}@{}}
+    {\fontsize{11.5}{13.5}\selectfont\bfseries\color{heading} #1} & {\small\color{subtle} #3} \\
+    {\small\color{textgray} #2} & {\small\color{textgray} #4} \\
+  \end{tabularx}
+  \vspace{2pt}
+}
+
+\newcommand{\projectTitle}[1]{
+  {\normalsize\color{heading} #1}\par
+  \vspace{2pt}
+}
+
+\newcommand{\entryGap}{
+  \vspace{13pt}
+}
+
+\newcommand{\eduEntryGap}{
+  \vspace{2pt}
+}
+
+\newcommand{\afterListGap}{
+  \vspace{1pt}
+}
+
+\newcommand{\sectionGap}{
+  \vspace{6pt}
+}
+
+\newcommand{\projectGap}{
+  \vspace{5pt}
+}
+
+\begin{document}
+
+{\LARGE\bfseries 徐涣}\par
+\vspace{2pt}
+{\small 18321289735 \textbar\ cs\_xuhuan@163.com \textbar\ 浙江 - 嘉兴 / 上海、杭州}\par
+
+\section{工作经历}
+
+\resumeEntry
+  {杭州稳付科技有限公司}
+  {开发工程师}
+  {2026年04月 - 2026年06月}
+  {杭州}
+
+\begin{itemize}
+  \item 负责 Payment Link 产品建设，支持商家通过公开可复用链接完成轻量收款，复用既有订单、支付、收银与结算基础设施，落地 Hosted Checkout 与多币种标价能力。
+  \item 负责 ChargeCore 计费系统建设，统一产品服务费、商家费率、通道费、计费明细与审计能力，支撑多业务系统接入一致的计费与账单口径。
+  \item 负责 Payout Transfer to Global Account 能力落地，将原有外部地址出款扩展为 StablePay Account 间转账，补齐邀请、领取及多场景资金流与账户流闭环。
+\end{itemize}
+\projectGap
+
+\resumeEntry
+  {支付宝（杭州）信息技术有限公司}
+  {CIO技术部-开发工程师}
+  {2023年04月 - 2025年03月}
+  {杭州}
+
+\projectTitle{企业主数据：系统搬迁与接口治理}
+\begin{itemize}
+  \item 负责 HR 主数据系统搬迁与切流治理，支撑千级接口迁移与复杂调用链切换，保障业务连续性与数据稳定。
+  \item 设计代码、数据、结果三级一致性校验体系，推动主数据接口从 1000+ 收敛至 200+ 领域级接口，支撑灰度迁移、接口融合与长期治理。
+\end{itemize}
+\projectGap
+
+\projectTitle{核心人事：任职计划解耦}
+\begin{itemize}
+  \item 负责任职计划解耦改造，协调 7 个业务系统收敛生成逻辑与语义边界，统一 80+ reasonCode 的主数据口径。
+  \item 设计时间线编排与结构推导能力，支持任职冲突裁决、历史插入、撤销推演、多岗位识别及组织关系生成。
+\end{itemize}
+\projectGap
+
+\projectTitle{企业主数据：架构治理与系统演进}
+\begin{itemize}
+  \item 负责主数据系统架构治理，推进 DDD 分层重构、消息与任务治理、依赖收敛及可观测性建设，提升系统可维护性与演进能力。
+  \item 参与层级拆分与职务体系调整等主数据改造，支持规则抽象、区间判断优化及后续多体系扩展。
+\end{itemize}
+\projectGap
+
+\sectionGap
+
+\section{教育经历}
+
+\resumeEntry
+  {华东师范大学}
+  {硕士 \textbar\ 大数据技术与工程 / 数据科学与工程学院}
+  {2020年09月 - 2023年03月}
+  {上海}
+\begin{itemize}
+  \item 作为“水杉在线”教学平台后端主要开发者，服务全校 2 万+ 学生，覆盖课程、测评、OJ、工坊等模块。
+\end{itemize}
+\afterListGap
+
+\eduEntryGap
+\resumeEntry
+  {华东理工大学}
+  {本科 \textbar\ 计算机科学与技术 / 信息科学与工程学院}
+  {2016年09月 - 2020年06月}
+  {上海}
+\begin{itemize}
+  \item 专业排名：9/110 \textbar\ 一等学业奖学金 \textbar\ 国家级大学生创新创业项目
+\end{itemize}
+\sectionGap
+
+\section{研发方式}
+
+\begin{itemize}
+  \item 在需求澄清、方案设计、编码实现与验证等环节持续引入 AI 协作，围绕 PRD、设计稿与仓库上下文组织研发流程，重点控制数据模型、协议边界、影响面、资金流与稳定性保障。
+  \item 针对方案设计、前后端开发、存储设计、测试验证与观测排查等场景沉淀协作模板，通过多会话协作推进复杂需求交付，优先保证实现一致性与变更可控性。
+  \item 将高频研发动作逐步沉淀为可复用流程，使 AI 更接近受约束的工程协作者，而不是脱离上下文的代码生成工具。
+\end{itemize}
+\sectionGap
+
+\section{专业证书}
+
+\begin{itemize}
+  \item CET6 \textbar\ 证券从业资格证 \textbar\ 区块链应用操作员二级
+\end{itemize}
+
+\end{document}
