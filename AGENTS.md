@@ -26,8 +26,10 @@ pnpm dev
 Deployment is designed for:
 
 ```text
-GitHub Actions -> GHCR -> Ubuntu-3 Docker Compose
+GitHub Actions -> Docker image archive over SSH -> Ubuntu-3 Docker Compose
 ```
+
+The workflow still pushes GHCR images for traceability, but Ubuntu-3 does not need a GitHub package token. It loads the image archive uploaded by Actions.
 
 GitHub repository:
 
