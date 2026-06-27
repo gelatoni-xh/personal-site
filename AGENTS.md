@@ -29,11 +29,23 @@ Deployment is designed for:
 GitHub Actions -> GHCR -> Ubuntu-3 Docker Compose
 ```
 
-Do not assume GitHub secrets exist. Ask the user before requiring:
+GitHub repository:
+
+```text
+https://github.com/gelatoni-xh/personal-site
+```
+
+Repository secrets are expected:
 
 - `UBUNTU3_HOST`
 - `UBUNTU3_USER`
 - `UBUNTU3_SSH_KEY`
+
+The deploy key is project-specific and stored locally at:
+
+```text
+/Users/xuhuan/workspace_new/server-access/personal-site-deploy
+```
 
 Use `$server-resource-bridge` for Ubuntu-3 server resource discovery and durable deployment notes.
 

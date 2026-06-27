@@ -54,6 +54,12 @@ published: true
 
 ## Deployment Notes
 
+Repository:
+
+```text
+https://github.com/gelatoni-xh/personal-site
+```
+
 GitHub Actions builds and pushes:
 
 ```text
@@ -67,6 +73,12 @@ Required GitHub repository secrets:
 UBUNTU3_HOST
 UBUNTU3_USER
 UBUNTU3_SSH_KEY
+```
+
+`UBUNTU3_SSH_KEY` uses a project-specific deploy key stored locally at:
+
+```text
+/Users/xuhuan/workspace_new/server-access/personal-site-deploy
 ```
 
 Ubuntu-3 runtime directory:
