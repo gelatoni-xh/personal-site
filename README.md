@@ -60,14 +60,7 @@ Repository:
 https://github.com/gelatoni-xh/personal-site
 ```
 
-GitHub Actions builds and pushes a GHCR image for traceability:
-
-```text
-ghcr.io/<github-owner>/personal-site:<git-sha>
-ghcr.io/<github-owner>/personal-site:latest
-```
-
-Deployment does not require Ubuntu-3 to pull from GHCR. Actions also uploads a Docker image archive over SSH and runs `docker load` on the server, avoiding a server-side GitHub package token.
+GitHub Actions builds a Docker image archive, uploads it over SSH, and runs `docker load` on Ubuntu-3. This avoids a server-side GitHub package token and keeps deployment simple.
 
 Required GitHub repository secrets:
 
