@@ -54,11 +54,40 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ env.IMAGE_NAME }}:latest
 
+      - name: Build deploy image archive
+        run: |
+          docker build -t personal-site:latest .
+          docker save personal-site:latest | gzip > personal-site-image.tar.gz
+
+      - name: Upload deploy image archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: personal-site-image
+          path: personal-site-image.tar.gz
+          retention-days: 1
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download deploy image archive
+        uses: actions/download-artifact@v4
+        with:
+          name: personal-site-image
+
+      - name: Copy deployment files
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.UBUNTU3_HOST }}
+          username: ${{ secrets.UBUNTU3_USER }}
+          key: ${{ secrets.UBUNTU3_SSH_KEY }}
+          source: "personal-site-image.tar.gz,infra/compose/docker-compose.yml"
+          target: "/tmp/personal-site-deploy"
+
       - name: Deploy on Ubuntu-3
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -67,7 +96,15 @@ jobs:
           key: ${{ secrets.UBUNTU3_SSH_KEY }}
           script: |
             set -euo pipefail
+            mkdir -p /opt/apps/personal-site
+            cp /tmp/personal-site-deploy/infra/compose/docker-compose.yml /opt/apps/personal-site/docker-compose.yml
+            if [ ! -f /opt/apps/personal-site/.env ]; then
+              cat > /opt/apps/personal-site/.env <<'EOF'
+            PERSONAL_SITE_IMAGE=personal-site:latest
+            NEXT_PUBLIC_SITE_URL=https://gelatoni.uk
+            EOF
+            fi
+            sudo docker load -i /tmp/personal-site-deploy/personal-site-image.tar.gz
             cd /opt/apps/personal-site
-            docker compose pull
-            docker compose up -d
-            docker image prune -f
+            sudo docker compose up -d
+            sudo docker image prune -f
