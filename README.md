@@ -60,12 +60,14 @@ Repository:
 https://github.com/gelatoni-xh/personal-site
 ```
 
-GitHub Actions builds and pushes:
+GitHub Actions builds and pushes a GHCR image for traceability:
 
 ```text
 ghcr.io/<github-owner>/personal-site:<git-sha>
 ghcr.io/<github-owner>/personal-site:latest
 ```
+
+Deployment does not require Ubuntu-3 to pull from GHCR. Actions also uploads a Docker image archive over SSH and runs `docker load` on the server, avoiding a server-side GitHub package token.
 
 Required GitHub repository secrets:
 
@@ -92,6 +94,6 @@ Ubuntu-3 runtime directory:
 The server-side `.env` should set:
 
 ```text
-PERSONAL_SITE_IMAGE=ghcr.io/<github-owner>/personal-site:latest
+PERSONAL_SITE_IMAGE=personal-site:latest
 NEXT_PUBLIC_SITE_URL=https://gelatoni.uk
 ```
