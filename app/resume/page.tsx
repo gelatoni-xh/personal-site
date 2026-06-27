@@ -11,7 +11,6 @@ export default function ResumePage() {
         <div>
           <p className="page-kicker">Resume</p>
           <h1 className="page-title">徐涣</h1>
-          <p className="page-description">TeX 维护源文件，PDF 作为正式展示版本。</p>
         </div>
         <div className="flex flex-wrap gap-3">
           <a className="inline-flex border border-ink bg-ink px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-stone-700" href="/resume/resume-v1-2026-06-26.pdf">
@@ -30,10 +29,11 @@ export default function ResumePage() {
         <Image
           alt="徐涣简历预览"
           className="h-auto w-full"
-          height={1980}
+          height={3508}
           priority
           src="/resume/resume-preview.png"
-          width={1400}
+          unoptimized
+          width={2481}
         />
       </a>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-stone-500">
