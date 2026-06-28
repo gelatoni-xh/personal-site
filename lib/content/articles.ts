@@ -3,7 +3,7 @@ import path from "node:path";
 import matter from "gray-matter";
 
 const articlesDirectory = path.join(process.cwd(), "content/articles");
-const categoryOrder = ["蚂蚁集团-人事板块", "StablePay", "个人项目", "思考"];
+const categoryOrder = ["蚂蚁集团-人事板块", "StablePay", "AI实践", "个人项目", "思考"];
 
 export interface Article {
   slug: string;

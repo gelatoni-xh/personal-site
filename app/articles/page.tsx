@@ -6,7 +6,7 @@ export const metadata = {
 };
 
 const pageSize = 10;
-const contentUpdatedAt = "2026-06-28 20:46";
+const contentUpdatedAt = "2026-06-29 00:35";
 
 interface ArticlesPageProps {
   searchParams: Promise<{
