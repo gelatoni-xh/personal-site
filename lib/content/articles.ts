@@ -8,6 +8,7 @@ export interface Article {
   slug: string;
   title: string;
   date: string;
+  category: string;
   summary: string;
   tags: string[];
   published: boolean;
@@ -26,6 +27,10 @@ function normalizeTags(value: unknown): string[] {
   }
 
   return value.filter((tag): tag is string => typeof tag === "string");
+}
+
+function normalizeCategory(value: unknown): string {
+  return typeof value === "string" && value.trim() ? value.trim() : "未分类";
 }
 
 export function getArticleSlugs() {
@@ -51,6 +56,7 @@ export function getArticleBySlug(slug: string): Article | null {
     slug,
     title: typeof data.title === "string" ? data.title : slug,
     date: typeof data.date === "string" ? data.date : "",
+    category: normalizeCategory(data.category),
     summary: typeof data.summary === "string" ? data.summary : "",
     tags: normalizeTags(data.tags),
     published: data.published !== false,
@@ -62,5 +68,17 @@ export function getPublishedArticles() {
   return getArticleSlugs()
     .map((slug) => getArticleBySlug(slug))
     .filter((article): article is Article => Boolean(article && article.published))
-    .sort((a, b) => b.date.localeCompare(a.date));
+    .sort((a, b) => {
+      const dateOrder = b.date.localeCompare(a.date);
+
+      if (dateOrder !== 0) {
+        return dateOrder;
+      }
+
+      return a.title.localeCompare(b.title, "zh-CN");
+    });
+}
+
+export function getArticleCategories(articles = getPublishedArticles()) {
+  return Array.from(new Set(articles.map((article) => article.category))).sort((a, b) => a.localeCompare(b, "zh-CN"));
 }

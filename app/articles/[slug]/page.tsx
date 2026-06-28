@@ -41,6 +41,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         <h1 className="page-title">{article.title}</h1>
         <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-stone-500">
           <time>{article.date}</time>
+          <span className="border border-line px-2 py-0.5">{article.category}</span>
           {article.tags.map((tag) => (
             <span className="rounded border border-line px-2 py-0.5" key={tag}>
               {tag}

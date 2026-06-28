@@ -10,7 +10,7 @@ export default function ResumePage() {
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="page-kicker">Resume</p>
-          <h1 className="page-title">徐涣</h1>
+          <h1 className="page-title">简历</h1>
         </div>
         <div className="flex flex-wrap gap-3">
           <a className="inline-flex border border-ink bg-ink px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-stone-700" href="/resume/resume-v1-2026-06-26.pdf">
@@ -36,12 +36,6 @@ export default function ResumePage() {
           width={2481}
         />
       </a>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-stone-500">
-        <span>点击预览可打开 PDF 原文。</span>
-        <a className="text-ink underline decoration-line underline-offset-4 hover:decoration-ink" href="/resume/resume-v1-2026-06-26.pdf" download>
-          下载 PDF
-        </a>
-      </div>
     </section>
   );
 }

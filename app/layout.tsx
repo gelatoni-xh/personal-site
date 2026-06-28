@@ -4,10 +4,10 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "personal-site",
-    template: "%s | personal-site",
+    default: "徐涣 / Gelatoni",
+    template: "%s | 徐涣 / Gelatoni",
   },
-  description: "A minimal personal site for articles and resume.",
+  description: "徐涣 / Gelatoni 的文章与简历。",
 };
 
 export default function RootLayout({
@@ -22,7 +22,7 @@ export default function RootLayout({
           <header className="border-b border-line/80 bg-paper/90">
             <nav className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5">
               <Link className="font-mono text-sm font-semibold tracking-normal" href="/articles">
-                personal-site
+                徐涣 / Gelatoni
               </Link>
               <div className="flex items-center gap-2 text-sm">
                 <Link className="nav-link" href="/articles">
@@ -35,9 +35,6 @@ export default function RootLayout({
             </nav>
           </header>
           <main className="mx-auto max-w-5xl px-5 py-10">{children}</main>
-          <footer className="mx-auto max-w-5xl px-5 py-10 text-sm text-stone-500">
-            <span>Built for writing, shipping, and staying simple.</span>
-          </footer>
         </div>
       </body>
     </html>
