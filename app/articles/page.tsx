@@ -6,6 +6,7 @@ export const metadata = {
 };
 
 const pageSize = 10;
+const contentUpdatedAt = "2026-06-28 20:46";
 
 interface ArticlesPageProps {
   searchParams: Promise<{
@@ -53,8 +54,13 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
 
   return (
     <section>
-      <p className="page-kicker">Writing</p>
-      <h1 className="page-title">文章</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="page-kicker">Writing</p>
+          <h1 className="page-title">文章</h1>
+        </div>
+        <p className="text-sm text-stone-500">最近更新：{contentUpdatedAt}</p>
+      </div>
       <div className="mt-8 flex flex-wrap gap-2">
         <Link className={`border px-3 py-1.5 text-sm transition ${activeCategory ? "border-line bg-white text-stone-600 hover:border-ink hover:text-ink" : "border-ink bg-ink text-white"}`} href="/articles">
           全部
