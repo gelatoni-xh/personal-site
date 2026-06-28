@@ -43,7 +43,19 @@ export function getArticleSlugs() {
 }
 
 export function getArticleBySlug(slug: string): Article | null {
-  const fullPath = path.join(articlesDirectory, `${slug}.md`);
+  let normalizedSlug = slug;
+
+  try {
+    normalizedSlug = decodeURIComponent(slug);
+  } catch {
+    return null;
+  }
+
+  if (normalizedSlug.includes("/") || normalizedSlug.includes("\\") || normalizedSlug.includes("..")) {
+    return null;
+  }
+
+  const fullPath = path.join(articlesDirectory, `${normalizedSlug}.md`);
 
   if (!fs.existsSync(fullPath)) {
     return null;
@@ -53,7 +65,7 @@ export function getArticleBySlug(slug: string): Article | null {
   const { data, content } = matter(raw);
 
   return {
-    slug,
+    slug: normalizedSlug,
     title: typeof data.title === "string" ? data.title : slug,
     date: typeof data.date === "string" ? data.date : "",
     category: normalizeCategory(data.category),

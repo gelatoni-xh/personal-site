@@ -1,15 +1,11 @@
 import { notFound } from "next/navigation";
 import { MarkdownBody } from "@/components/markdown/markdown-body";
-import { getArticleBySlug, getArticleSlugs } from "@/lib/content/articles";
+import { getArticleBySlug } from "@/lib/content/articles";
 
 interface ArticlePageProps {
   params: Promise<{
     slug: string;
   }>;
-}
-
-export function generateStaticParams() {
-  return getArticleSlugs().map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: ArticlePageProps) {
