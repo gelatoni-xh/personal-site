@@ -13,10 +13,10 @@ export default function ResumePage() {
           <h1 className="page-title">简历</h1>
         </div>
         <div className="flex flex-wrap gap-3">
-          <a className="inline-flex border border-ink bg-ink px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-stone-700" href="/resume/resume-v1-2026-06-26.pdf">
+          <a className="inline-flex border border-ink bg-ink px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-stone-700" href="/resume/resume-v1-2026-06-28.pdf">
             查看 PDF
           </a>
-          <a className="inline-flex border border-line bg-white px-4 py-2 text-sm font-medium text-ink shadow-sm transition hover:border-ink" href="/resume/resume-v1-2026-06-26.tex">
+          <a className="inline-flex border border-line bg-white px-4 py-2 text-sm font-medium text-ink shadow-sm transition hover:border-ink" href="/resume/resume-v1-2026-06-28.tex">
             下载 TeX
           </a>
         </div>
@@ -24,7 +24,7 @@ export default function ResumePage() {
       <a
         aria-label="打开徐涣简历 PDF"
         className="mt-10 block bg-white p-3 shadow-[0_18px_60px_rgba(41,37,36,0.14)] ring-1 ring-line transition hover:-translate-y-0.5 hover:shadow-[0_22px_70px_rgba(41,37,36,0.18)]"
-        href="/resume/resume-v1-2026-06-26.pdf"
+        href="/resume/resume-v1-2026-06-28.pdf"
       >
         <Image
           alt="徐涣简历预览"

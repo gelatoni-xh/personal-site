@@ -3,6 +3,7 @@ import path from "node:path";
 import matter from "gray-matter";
 
 const articlesDirectory = path.join(process.cwd(), "content/articles");
+const categoryOrder = ["蚂蚁集团-人事板块", "StablePay", "个人项目", "思考"];
 
 export interface Article {
   slug: string;
@@ -92,5 +93,14 @@ export function getPublishedArticles() {
 }
 
 export function getArticleCategories(articles = getPublishedArticles()) {
-  return Array.from(new Set(articles.map((article) => article.category))).sort((a, b) => a.localeCompare(b, "zh-CN"));
+  return Array.from(new Set(articles.map((article) => article.category))).sort((a, b) => {
+    const indexA = categoryOrder.indexOf(a);
+    const indexB = categoryOrder.indexOf(b);
+
+    if (indexA !== -1 || indexB !== -1) {
+      return (indexA === -1 ? Number.MAX_SAFE_INTEGER : indexA) - (indexB === -1 ? Number.MAX_SAFE_INTEGER : indexB);
+    }
+
+    return a.localeCompare(b, "zh-CN");
+  });
 }
