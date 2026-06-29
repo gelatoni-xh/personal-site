@@ -43,4 +43,10 @@ html {
   .prose h3 {
     scroll-margin-top: 5rem;
   }
+
+  .mermaid-diagram svg {
+    display: block;
+    height: auto;
+    max-width: none;
+  }
 }

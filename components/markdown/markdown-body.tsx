@@ -1,6 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
+import { MermaidDiagram } from "@/components/markdown/mermaid-diagram";
 import { createHeadingId } from "@/lib/content/markdown";
 import "highlight.js/styles/github.css";
 
@@ -39,6 +40,7 @@ export function MarkdownBody({ content, className }: MarkdownBodyProps) {
           },
           code({ className: codeClassName, children, ...props }) {
             const isBlock = codeClassName?.includes("language-");
+            const codeContent = String(children).replace(/\n$/, "");
 
             if (!isBlock) {
               return (
@@ -46,6 +48,10 @@ export function MarkdownBody({ content, className }: MarkdownBodyProps) {
                   {children}
                 </code>
               );
+            }
+
+            if (codeClassName?.includes("language-mermaid")) {
+              return <MermaidDiagram chart={codeContent} />;
             }
 
             return (
