@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { getArticleCategories, getPublishedArticles } from "@/lib/content/articles";
+import { getArticleBySlug, getArticleCategories, getPublishedArticles } from "@/lib/content/articles";
 
 export const metadata = {
   title: "文章",
 };
 
+const contentUpdatedAt = "2026-06-30";
+const featuredSlug = "2026-06-26-AI辅助研发模式回顾";
 const pageSize = 10;
-const contentUpdatedAt = "2026-06-29 15:59";
 
 interface ArticlesPageProps {
   searchParams: Promise<{
@@ -43,7 +44,8 @@ function getPageHref(category: string | undefined, page: number) {
 
 export default async function ArticlesPage({ searchParams }: ArticlesPageProps) {
   const { category, page } = await searchParams;
-  const articles = getPublishedArticles();
+  const featuredArticle = getArticleBySlug(featuredSlug);
+  const articles = getPublishedArticles().filter((article) => article.slug !== featuredSlug);
   const categories = getArticleCategories(articles);
   const activeCategory = category && categories.includes(category) ? category : undefined;
   const filteredArticles = activeCategory ? articles.filter((article) => article.category === activeCategory) : articles;
@@ -61,6 +63,26 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
         </div>
         <p className="text-sm text-stone-500">最近更新：{contentUpdatedAt}</p>
       </div>
+      <div className="mt-10">
+        {!featuredArticle ? (
+          <div className="panel">
+            <p className="text-sm text-stone-500">主推文章暂时还没有准备好。</p>
+          </div>
+        ) : (
+          <Link className="panel block border-ink/70 bg-stone-50 transition hover:border-ink" href={`/articles/${featuredArticle.slug}`}>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
+              <span className="border border-ink px-2 py-0.5 text-ink">Featured</span>
+              <time>{featuredArticle.date}</time>
+              <span className="border border-line px-2 py-0.5">{featuredArticle.category}</span>
+            </div>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-ink">{featuredArticle.title}</h2>
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-stone-600">
+              这篇文章集中整理了我当前阶段如何把 AI 协作放进真实研发流程，包括需求理解、方案前置、编码协作、质量验证和运维辅助。
+            </p>
+            <p className="mt-6 text-sm font-medium text-ink">阅读全文</p>
+          </Link>
+        )}
+      </div>
       <div className="mt-8 flex flex-wrap gap-2">
         <Link className={`border px-3 py-1.5 text-sm transition ${activeCategory ? "border-line bg-white text-stone-600 hover:border-ink hover:text-ink" : "border-ink bg-ink text-white"}`} href="/articles">
           全部
@@ -75,11 +97,10 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
           </Link>
         ))}
       </div>
-
-      <div className="mt-10 grid gap-4">
+      <div className="mt-12 grid gap-4">
         {visibleArticles.length === 0 ? (
           <div className="panel">
-            <p className="text-sm text-stone-500">还没有文章。把 Markdown 文件放到 content/articles 后会自动出现在这里。</p>
+            <p className="text-sm text-stone-500">这个分类下暂时还没有文章。</p>
           </div>
         ) : (
           visibleArticles.map((article) => (
