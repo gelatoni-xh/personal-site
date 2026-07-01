@@ -115,7 +115,6 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
                 ))}
               </div>
               <h2 className="mt-3 text-xl font-semibold">{article.title}</h2>
-              {article.summary ? <p className="mt-2 text-sm leading-6 text-stone-600">{article.summary}</p> : null}
             </Link>
           ))
         )}
