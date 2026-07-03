@@ -49,4 +49,12 @@ html {
     height: auto;
     max-width: none;
   }
+
+  .mermaid-diagram-preview svg {
+    width: 1400px;
+  }
+
+  .mermaid-diagram-zoomed svg {
+    width: 1800px;
+  }
 }
