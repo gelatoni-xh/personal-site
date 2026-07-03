@@ -5,7 +5,7 @@ export const metadata = {
   title: "文章",
 };
 
-const contentUpdatedAt = "2026-06-30";
+const contentUpdatedAt = "2026-07-02";
 const featuredSlug = "2026-06-26-AI辅助研发模式回顾";
 const pageSize = 10;
 
