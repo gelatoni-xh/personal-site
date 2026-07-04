@@ -60,7 +60,7 @@ Repository:
 https://github.com/gelatoni-xh/personal-site
 ```
 
-GitHub Actions builds a Docker image archive, uploads it over SSH, and runs `docker load` on Ubuntu-3. This avoids a server-side GitHub package token and keeps deployment simple.
+GitHub Actions builds a Docker image archive in the same workflow job, uploads it over SSH, and runs `docker load` on Ubuntu-3. This avoids both artifact storage usage and a server-side GitHub package token.
 
 Required GitHub repository secrets:
 
