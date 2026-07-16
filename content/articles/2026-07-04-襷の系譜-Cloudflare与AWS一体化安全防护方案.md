@@ -43,14 +43,15 @@ published: true
 - `Minimum TLS Version = 1.2`
 - 已挂载 Cloudflare 免费托管规则集
 - 已启用第一版 rate limit 规则
-- 已启用一条自定义防火墙规则：对非搜索引擎访问 `sitemap.xml` 做 `Managed Challenge`
 - 已启用一条自定义防火墙规则：对高价值数据页上的明显脚本 UA 做 `Managed Challenge`
 - 已启用一条自定义防火墙规则：对高价值数据页上的空 UA 请求做 `Managed Challenge`
+- 2026-07-05 已移除 `sitemap.xml` 的单独 challenge，避免误伤 Search Console 与第三方 SEO 工具
 
 这意味着：
 
 - 域名访问会先经过 Cloudflare
 - Cloudflare 侧已经有第一版基础防护和轻量反爬
+- Googlebot 这类已验证搜索引擎 bot 仍保持友好放行
 - 但规则仍然偏克制，后续还可以继续细化
 
 ### AWS / 源站侧现状
@@ -119,7 +120,7 @@ published: true
 当前第一版反爬已经落下，但还属于偏克制方案：
 
 - 高价值页面使用一条总 rate limit 规则兜底
-- `sitemap.xml` 单独加了一条 challenge
+- 目录级入口目前不再单独挑战，而是优先保证 SEO 工具链可直接访问
 
 后续仍可继续向更精细的页面分层演进。
 
@@ -213,17 +214,17 @@ published: true
 3. 当前阈值为 `10 秒 400 次`
 4. 当前动作为短时 `block`
 5. 已排除 `cf.client.bot`
-6. 自定义防火墙规则已启用：对非搜索引擎访问 `/sitemap.xml` 执行 `Managed Challenge`
-7. 自定义防火墙规则已启用：对高价值数据页上的明显脚本 UA 执行 `Managed Challenge`
-8. 自定义防火墙规则已启用：对高价值数据页上的空 UA 请求执行 `Managed Challenge`
+6. 自定义防火墙规则已启用：对高价值数据页上的明显脚本 UA 执行 `Managed Challenge`
+7. 自定义防火墙规则已启用：对高价值数据页上的空 UA 请求执行 `Managed Challenge`
+8. 2026-07-05 已移除 `/sitemap.xml` 的单独 challenge，优先保证 Google Search Console、Googlebot 与第三方 SEO 工具的可访问性
 
 结果：
 
 - 已能拦住非常明显的 burst scraping
-- 目录级枚举入口 `sitemap.xml` 已增加额外门槛
 - 常见脚本采集器 UA 已在高价值数据页上被单独挑战
 - 空 UA 这类非常可疑的采集请求已被单独挑战
 - 正常首页和主要站点访问未被误伤
+- `sitemap.xml` 已恢复为更标准的公开 SEO 入口
 
 ### 4. SSH 登录层加固
 
@@ -460,8 +461,8 @@ published: true
 优先做：
 
 1. 先用总规则兜住高价值数据页
-2. 单独补 `sitemap.xml` 目录入口保护
-3. 再按 `players` 与 `competitions/{slug}` 做更细分层
+2. 再按 `players` 与 `competitions/{slug}` 做更细分层
+3. 如需保护目录级入口，优先只挑战明显恶意 UA，而不是对 `sitemap.xml` 做普遍 challenge
 
 完成后收益：
 
@@ -482,7 +483,7 @@ published: true
 
 如果要把这版方案压缩成一句话，就是：
 
-`先堵住源站直连和裸露端口，让 Cloudflare 真正成为入口；再用 Cloudflare 的 WAF、基础 bot 防护、限速和 Managed Challenge，重点保护 players 与 competitions 这类高价值数据页面。`
+`先堵住源站直连和裸露端口，让 Cloudflare 真正成为入口；再用 Cloudflare 的 WAF、基础 bot 防护、限速和 Managed Challenge，重点保护 players 与 competitions 这类高价值数据页面，同时避免阻断标准 SEO 抓取入口。`
 
 对 `tasuki-keifu` 这样的个人数据站，这是一版最平衡的路线：
 
@@ -521,7 +522,7 @@ published: true
 - `Full (strict)` 与托管规则
 - SSH 纯公钥登录
 - 宽松总 rate limit 作为爆刷兜底
-- `sitemap.xml`、明显脚本 UA、空 UA 的 challenge
+- 对明显脚本 UA、空 UA 的 challenge
 
 这层不需要频繁变动。
 
