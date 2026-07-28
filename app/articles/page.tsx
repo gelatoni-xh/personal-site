@@ -48,7 +48,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
   const articles = getPublishedArticles().filter((article) => article.slug !== featuredSlug);
   const categories = getArticleCategories(articles);
   const activeCategory = category && categories.includes(category) ? category : undefined;
-  const filteredArticles = activeCategory ? articles.filter((article) => article.categories.includes(activeCategory)) : articles;
+  const filteredArticles = activeCategory ? articles.filter((article) => article.category === activeCategory) : articles;
   const totalPages = Math.max(1, Math.ceil(filteredArticles.length / pageSize));
   const currentPage = getPageNumber(page, totalPages);
   const pageStart = (currentPage - 1) * pageSize;
@@ -73,11 +73,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
             <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
               <span className="border border-ink px-2 py-0.5 text-ink">Featured</span>
               <time>{featuredArticle.date}</time>
-              {featuredArticle.categories.map((item) => (
-                <span className="border border-line px-2 py-0.5" key={item}>
-                  {item}
-                </span>
-              ))}
+              <span className="border border-line px-2 py-0.5">{featuredArticle.category}</span>
             </div>
             <h2 className="mt-4 text-3xl font-semibold tracking-tight text-ink">{featuredArticle.title}</h2>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-stone-600">
@@ -111,16 +107,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
             <Link className="panel block transition hover:border-stone-400" href={`/articles/${article.slug}`} key={article.slug}>
               <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
                 <time>{article.date}</time>
-                {article.categories.map((item) => (
-                  <span className="border border-line px-2 py-0.5" key={item}>
-                    {item}
-                  </span>
-                ))}
-                {article.tags.map((tag) => (
-                  <span className="rounded border border-line px-2 py-0.5" key={tag}>
-                    {tag}
-                  </span>
-                ))}
+                <span className="border border-line px-2 py-0.5">{article.category}</span>
               </div>
               <h2 className="mt-3 text-xl font-semibold">{article.title}</h2>
             </Link>

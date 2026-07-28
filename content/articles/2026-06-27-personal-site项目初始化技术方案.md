@@ -2,7 +2,6 @@
 title: "2026-06-27-personal-site项目初始化技术方案"
 date: "2026-06-27"
 category: "个人项目"
-tags: []
 published: true
 ---
 
@@ -111,7 +110,7 @@ content/articles/*.md
 title: "文章标题"
 date: "2026-06-27"
 summary: "一句话摘要"
-tags: ["AI", "Engineering"]
+category: "个人项目"
 published: true
 ---
 ```

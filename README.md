@@ -47,7 +47,7 @@ Article frontmatter:
 title: "Title"
 date: "2026-06-27"
 summary: "Short summary"
-tags: ["AI", "Engineering"]
+category: "个人项目"
 published: true
 ---
 ```

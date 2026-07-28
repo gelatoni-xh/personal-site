@@ -2,8 +2,7 @@
 title: "2026-07-28-tasuki-keifu-Agent-V1-技术方案"
 date: "2026-07-28"
 summary: "为 tasuki-keifu 设计一个面向数据维护与资料诊断的业务型 Agent V1，先从 person diagnosis graph 起步。"
-categories: ["AI实践", "个人项目"]
-tags: ["AI实践", "Agent", "LangGraph", "技术方案"]
+category: "个人项目"
 published: true
 ---
 
