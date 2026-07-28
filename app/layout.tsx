@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     default: "徐涣 / Gelatoni",
     template: "%s | 徐涣 / Gelatoni",
   },
-  description: "襷の系譜。",
+  description: "徐涣 / Gelatoni 的文章与简历。",
 };
 
 export default function RootLayout({
@@ -21,12 +21,18 @@ export default function RootLayout({
         <div className="min-h-screen bg-paper text-ink">
           <header className="border-b border-line/80 bg-paper/90">
             <nav className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5">
-              <Link className="font-mono text-sm font-semibold tracking-normal" href="https://tasukikeifu.com" rel="noreferrer" target="_blank">
-                襷の系譜
+              <Link className="font-mono text-sm font-semibold tracking-normal" href="/articles">
+                徐涣 / Gelatoni
               </Link>
               <div className="flex items-center gap-2 text-sm">
                 <Link className="nav-link" href="https://tasukikeifu.com" rel="noreferrer" target="_blank">
                   襷の系譜
+                </Link>
+                <Link className="nav-link" href="/articles">
+                  文章
+                </Link>
+                <Link className="nav-link" href="/resume">
+                  简历
                 </Link>
               </div>
             </nav>
