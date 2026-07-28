@@ -10,6 +10,7 @@ export interface Article {
   title: string;
   date: string;
   category: string;
+  categories: string[];
   summary: string;
   tags: string[];
   published: boolean;
@@ -32,6 +33,19 @@ function normalizeTags(value: unknown): string[] {
 
 function normalizeCategory(value: unknown): string {
   return typeof value === "string" && value.trim() ? value.trim() : "未分类";
+}
+
+function normalizeCategories(value: unknown, fallback: unknown): string[] {
+  if (Array.isArray(value)) {
+    const categories = value
+      .filter((category): category is string => typeof category === "string")
+      .map((category) => category.trim())
+      .filter(Boolean);
+
+    return categories.length > 0 ? Array.from(new Set(categories)) : [normalizeCategory(fallback)];
+  }
+
+  return [normalizeCategory(fallback)];
 }
 
 export function getArticleSlugs() {
@@ -64,12 +78,14 @@ export function getArticleBySlug(slug: string): Article | null {
 
   const raw = fs.readFileSync(fullPath, "utf8");
   const { data, content } = matter(raw);
+  const categories = normalizeCategories(data.categories, data.category);
 
   return {
     slug: normalizedSlug,
     title: typeof data.title === "string" ? data.title : slug,
     date: typeof data.date === "string" ? data.date : "",
-    category: normalizeCategory(data.category),
+    category: categories[0],
+    categories,
     summary: typeof data.summary === "string" ? data.summary : "",
     tags: normalizeTags(data.tags),
     published: data.published !== false,
@@ -93,7 +109,7 @@ export function getPublishedArticles() {
 }
 
 export function getArticleCategories(articles = getPublishedArticles()) {
-  return Array.from(new Set(articles.map((article) => article.category))).sort((a, b) => {
+  return Array.from(new Set(articles.flatMap((article) => article.categories))).sort((a, b) => {
     const indexA = categoryOrder.indexOf(a);
     const indexB = categoryOrder.indexOf(b);
 
