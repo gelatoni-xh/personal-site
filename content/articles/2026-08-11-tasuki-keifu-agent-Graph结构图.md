@@ -47,8 +47,11 @@ flowchart TD
     检查 membership 时间线"]
     MEMBERSHIP --> NORMALIZATION["check_person_normalization_risk
     检查归一化风险"]
-    NORMALIZATION --> PB["check_personal_best_consistency
+    NORMALIZATION -->|无明显风险 / 明确风险 / 高风险异常| PB["check_personal_best_consistency
     检查 PB 一致性"]
+    NORMALIZATION -->|模糊风险| RESEARCH["research_name_identity
+    LLM / web search 研究姓名身份"]
+    RESEARCH --> PB
     PB --> SUMMARY["summarize_findings
     汇总 findings"]
     SUMMARY --> ACTION["build_action_plan
@@ -74,7 +77,10 @@ flowchart TD
   检查 membership 时间线问题。
 
 - `check_person_normalization_risk`
-  检查选手归一化风险。
+  先做 name-first 规则判断，输出无明显风险、明确风险、模糊风险或高风险异常。
+
+- `research_name_identity`
+  只处理模糊风险。优先使用本地 Codex provider 的 `gpt-5.4` 尝试联网研究；如果接口不支持 web search，则降级为普通 LLM 判断。判断为 uncertain 时写入 finding，判断为 same 时转成明确的重复归一化 finding，判断为 different 时只记备注并继续。
 
 - `check_personal_best_consistency`
   检查 PB 一致性问题。
@@ -96,6 +102,12 @@ flowchart TD
 - `clarification` 是重试分叉点
   - 允许重试：回到 `resolve_person`
   - 否则：结束
+
+- `check_person_normalization_risk` 是归一化分叉点
+  - 无明显风险：直接进入 PB 检查
+  - 明确风险：记录 finding 后直接进入 PB 检查
+  - 高风险异常：记录 finding 后直接进入 PB 检查
+  - 模糊风险：先进入 `research_name_identity`，再回到主链路
 
 ## 维护规则
 
