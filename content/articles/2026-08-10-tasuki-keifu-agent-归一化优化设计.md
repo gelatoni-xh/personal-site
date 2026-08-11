@@ -242,6 +242,16 @@ membership 后面依然很重要，因为它未来可能会作为归一化判断
    - 从 node smoke 和 sample case 中删除
    - 从 graph 结构文档中同步删除
 
+## 当前实现状态
+
+- 规则层和 `ambiguous` 候选召回已经落地。
+- `research_name_identity` 已接入本地 Codex provider，默认使用 `gpt-5.4`。
+- 节点优先尝试 Responses API 的 web search；中转接口不支持时降级到 Chat Completions。
+- LLM 输出固定为 `same`、`different` 或 `uncertain`，并附带摘要、理由和来源模式。
+- `same` 转为 `duplicate_normalized_name`，`different` 只记录备注，`uncertain` 写入 `findings`。
+- LLM 请求单独记录为 `research_name_identity_llm`，可在 LangSmith 中查看。
+- API key 不写入项目，运行时读取本机 Codex 配置。
+
 ## 开发原则
 
 - 先做 name-first，不把归一化做成全实体解析
