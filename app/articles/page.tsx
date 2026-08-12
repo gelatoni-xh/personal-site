@@ -6,7 +6,7 @@ export const metadata = {
 };
 
 const contentUpdatedAt = "2026-08-11";
-const featuredSlug = "2026-06-26-AI辅助研发模式回顾";
+const featuredSlug = "2026-08-11-tasuki-keifu-agent-Graph结构图";
 const pageSize = 10;
 
 interface ArticlesPageProps {
