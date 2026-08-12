@@ -1,12 +1,15 @@
 import Link from "next/link";
-import { getArticleBySlug, getArticleCategories, getPublishedArticles } from "@/lib/content/articles";
+import { getArticleBySlug, getArticleCategories, getPublishedArticles, type Article } from "@/lib/content/articles";
 
 export const metadata = {
   title: "文章",
 };
 
 const contentUpdatedAt = "2026-08-12";
-const featuredSlug = "2026-08-11-tasuki-keifu-agent-Graph结构图";
+const featuredSlugs = [
+  "2026-08-11-tasuki-keifu-agent-Graph结构图",
+  "2026-06-26-AI辅助研发模式回顾",
+];
 const pageSize = 10;
 
 interface ArticlesPageProps {
@@ -42,10 +45,17 @@ function getPageHref(category: string | undefined, page: number) {
   return query ? `/articles?${query}` : "/articles";
 }
 
+function isFeaturedArticle(article: Article | null): article is Article {
+  return Boolean(article?.published);
+}
+
 export default async function ArticlesPage({ searchParams }: ArticlesPageProps) {
   const { category, page } = await searchParams;
-  const featuredArticle = getArticleBySlug(featuredSlug);
-  const articles = getPublishedArticles().filter((article) => article.slug !== featuredSlug);
+  const featuredArticles = featuredSlugs
+    .map((slug) => getArticleBySlug(slug))
+    .filter(isFeaturedArticle);
+  const featuredSlugSet = new Set(featuredArticles.map((article) => article.slug));
+  const articles = getPublishedArticles().filter((article) => !featuredSlugSet.has(article.slug));
   const categories = getArticleCategories(articles);
   const activeCategory = category && categories.includes(category) ? category : undefined;
   const filteredArticles = activeCategory ? articles.filter((article) => article.category === activeCategory) : articles;
@@ -63,24 +73,24 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
         </div>
         <p className="text-sm text-stone-500">最近更新：{contentUpdatedAt}</p>
       </div>
-      <div className="mt-10">
-        {!featuredArticle ? (
+      <div className="mt-10 grid gap-4">
+        {featuredArticles.length === 0 ? (
           <div className="panel">
             <p className="text-sm text-stone-500">主推文章暂时还没有准备好。</p>
           </div>
         ) : (
-          <Link className="panel block border-ink/70 bg-stone-50 transition hover:border-ink" href={`/articles/${featuredArticle.slug}`}>
-            <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
-              <span className="border border-ink px-2 py-0.5 text-ink">Featured</span>
-              <time>{featuredArticle.date}</time>
-              <span className="border border-line px-2 py-0.5">{featuredArticle.category}</span>
-            </div>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-ink">{featuredArticle.title}</h2>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-stone-600">
-              这篇文章集中整理了我当前阶段如何把 AI 协作放进真实研发流程，包括需求理解、方案前置、编码协作、质量验证和运维辅助。
-            </p>
-            <p className="mt-6 text-sm font-medium text-ink">阅读全文</p>
-          </Link>
+          featuredArticles.map((article) => (
+            <Link className="panel block border-ink/70 bg-stone-50 transition hover:border-ink" href={`/articles/${article.slug}`} key={article.slug}>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
+                <span className="border border-ink px-2 py-0.5 text-ink">Featured</span>
+                <time>{article.date}</time>
+                <span className="border border-line px-2 py-0.5">{article.category}</span>
+              </div>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-ink">{article.title}</h2>
+              {article.summary ? <p className="mt-4 max-w-3xl text-sm leading-7 text-stone-600">{article.summary}</p> : null}
+              <p className="mt-6 text-sm font-medium text-ink">阅读全文</p>
+            </Link>
+          ))
         )}
       </div>
       <div className="mt-8 flex flex-wrap gap-2">
