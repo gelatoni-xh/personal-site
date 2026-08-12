@@ -40,30 +40,32 @@ jobs:
           docker build -t personal-site:latest .
           docker save personal-site:latest | gzip > personal-site-image.tar.gz
 
-      - name: Copy deployment files
-        uses: appleboy/scp-action@v1
-        with:
-          host: ${{ secrets.UBUNTU3_HOST }}
-          username: ${{ secrets.UBUNTU3_USER }}
-          key: ${{ secrets.UBUNTU3_SSH_KEY }}
-          source: "personal-site-image.tar.gz,infra/compose/docker-compose.yml"
-          target: "/tmp/personal-site-deploy"
-
       - name: Deploy on Ubuntu-3
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.UBUNTU3_HOST }}
-          username: ${{ secrets.UBUNTU3_USER }}
-          key: ${{ secrets.UBUNTU3_SSH_KEY }}
-          script: |
+        env:
+          DEPLOY_HOST: ${{ secrets.UBUNTU3_HOST }}
+          DEPLOY_USER: ${{ secrets.UBUNTU3_USER }}
+          DEPLOY_KEY: ${{ secrets.UBUNTU3_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/personal-site-deploy
+          chmod 600 ~/.ssh/personal-site-deploy
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/personal-site-deploy "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p /tmp/personal-site-deploy"
+          scp -i ~/.ssh/personal-site-deploy \
+            personal-site-image.tar.gz \
+            infra/compose/docker-compose.yml \
+            "$DEPLOY_USER@$DEPLOY_HOST:/tmp/personal-site-deploy/"
+          ssh -i ~/.ssh/personal-site-deploy "$DEPLOY_USER@$DEPLOY_HOST" <<'EOF'
             set -euo pipefail
             mkdir -p /opt/apps/personal-site
-            cp /tmp/personal-site-deploy/infra/compose/docker-compose.yml /opt/apps/personal-site/docker-compose.yml
-            cat > /opt/apps/personal-site/.env <<'EOF'
+            cp /tmp/personal-site-deploy/docker-compose.yml /opt/apps/personal-site/docker-compose.yml
+            cat > /opt/apps/personal-site/.env <<'ENVEOF'
             PERSONAL_SITE_IMAGE=personal-site:latest
             NEXT_PUBLIC_SITE_URL=https://gelatoni.uk
-            EOF
+            ENVEOF
             sudo docker load -i /tmp/personal-site-deploy/personal-site-image.tar.gz
             cd /opt/apps/personal-site
             sudo docker compose up -d
             sudo docker image prune -f
+          EOF
