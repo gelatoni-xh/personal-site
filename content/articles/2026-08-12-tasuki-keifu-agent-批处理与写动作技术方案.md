@@ -114,7 +114,7 @@ batch runner
 - `build_action_plan`
 - `evaluate_action_bundle_risk`
 
-其中 `build_action_plan` 已输出可审计的 `action bundle`，但业务库真实执行还没有接入。
+其中 `build_action_plan` 已输出可审计的 `action bundle`；受严格条件保护的归一化合并已接入真实写入，其他动作仍停放。
 
 ### Action Bundle 与风险评估
 
@@ -141,26 +141,18 @@ batch runner
 执行规则：
 
 - `high`：不执行任何写动作，只保留 findings、action bundle 和风险评估结果
-- `medium`：框架允许自动执行，但当前未接入具体写入规则时先停放
-- `low`：未来可以自动执行
+- `medium`：允许自动执行，但要走更保守的执行顺序和完整审计
+- `low`：自动执行
 
 ### 当前写动作边界
 
-归一化是当前最重要的部分，但当前 finding 还没有产出足够的执行决策。
+归一化已经接入第一条真实写动作：`merge_person_duplicate`。
 
-例如，归一化 finding 能判断“疑似同人”，但还没有稳定产出：
-
-- 保留哪条 `person`
-- 删除哪条 `person`
-- 字段如何合并
-- 关联的 membership、PB、成绩、来源如何处理
-
-所以截至当前版本：
-
-- graph 会生成动作包
-- 高风险或未实现的动作会单独停放
-- batch 会完整记录审计
-- 不会写入主业务库
+- 只有一个候选、LLM 研究结果为 `same`、两条日文名的规范化结果完全一致，并且能从 slug 明确选出非临时保留记录时，才会生成合并动作
+- 执行前会重新读取并锁定两条 `Person`，确认 slug 与规范化姓名未变化
+- 单个事务会迁移 membership、PB、比赛成绩、来源映射，保留名称变体，清关系缓存，写入业务 `AuditLog`，再删除重复记录
+- 关联记录目前只迁移，不做 membership、PB 或比赛成绩的语义去重
+- membership、PB、profile 的动作仍只记录和停放，尚未接入写入规则
 
 ### 幂等与失败隔离
 
@@ -199,9 +191,12 @@ agent 审计库用于记录：
 - batch 默认 `dry-run`，可以完整跑筛人、诊断、动作规划、风险评估和审计记录
 - 高风险或当前未实现写入规则的动作会按 person 单独停放，不影响同一批其他人
 
-### 后续开发顺序
+### 真实写入开关
 
-1. 从归一化开始，补齐“保留记录、删除记录、字段合并方式”的具体 action payload。
-2. 在执行前复读业务数据，确认诊断后没有发生冲突更新。
-3. 接入主业务库的事务性写入和主业务审计日志。
-4. 通过真实 batch 结果再扩展 membership、PB 与 profile 的写动作。
+真实写入必须同时满足：
+
+- batch 通过 `--execute` 启动
+- `TASUKI_AGENT_WRITE_ENABLED=true`
+- 配置独立的 `TASUKI_KEIFU_BUSINESS_WRITE_DATABASE_URL`
+
+未同时满足时，batch 一律维持 dry-run。

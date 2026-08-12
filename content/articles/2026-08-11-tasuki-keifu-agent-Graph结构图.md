@@ -53,10 +53,11 @@ flowchart TD
     检查 membership 时间线"]
     MEMBERSHIP --> NORMALIZATION["check_person_normalization_risk
     检查归一化风险"]
-    NORMALIZATION -->|无明显风险 / 明确风险 / 高风险异常| PB["check_personal_best_consistency
+    NORMALIZATION -->|无明显风险 / 高风险异常| PB["check_personal_best_consistency
     检查 PB 一致性"]
-    NORMALIZATION -->|模糊风险| RESEARCH["research_name_identity
+    NORMALIZATION -->|明确或模糊风险，且仅一个候选| RESEARCH["research_name_identity
     LLM / web search 研究姓名身份"]
+    NORMALIZATION -->|明确或模糊风险，但候选数不为 1| PB
     RESEARCH --> PB
     PB --> SUMMARY["summarize_findings
     汇总 findings"]
@@ -88,7 +89,7 @@ flowchart TD
   先做 name-first 规则判断，输出无明显风险、明确风险、模糊风险或高风险异常。
 
 - `research_name_identity`
-  只处理模糊风险。优先使用本地 Codex provider 的 `gpt-5.4` 尝试联网研究；如果接口不支持 web search，则降级为普通 LLM 判断。判断为 uncertain 时写入 finding，判断为 same 时转成明确的重复归一化 finding，判断为 different 时只记备注并继续。
+  处理只有一个候选的明确或模糊归一化风险。优先使用本地 Codex provider 的 `gpt-5.4` 尝试联网研究；如果接口不支持 web search，则降级为普通 LLM 判断。判断为 `uncertain` 时写入 finding，判断为 `same` 时保留或补充明确的重复归一化 finding，判断为 `different` 时移除规则层的重复 finding，避免把同名不同人合并。
 
 - `check_personal_best_consistency`
   检查 PB 一致性问题。
@@ -102,7 +103,7 @@ flowchart TD
 
 - `evaluate_action_bundle_risk`
   以单个 `person` 为边界评估整组动作风险。
-  当前归一化、membership、PB 等还没有完整执行参数的动作会被停放，不会写入业务库。
+  当前只有满足严格条件的 `merge_person_duplicate` 可进入计划执行；membership、PB、profile 等动作仍会停放，不会写入业务库。
 
 ### 当前分支说明
 
@@ -118,9 +119,9 @@ flowchart TD
 
 - `check_person_normalization_risk` 是归一化分叉点
   - 无明显风险：直接进入 PB 检查
-  - 明确风险：记录 finding 后直接进入 PB 检查
   - 高风险异常：记录 finding 后直接进入 PB 检查
-  - 模糊风险：先进入 `research_name_identity`，再回到主链路
+  - 明确或模糊风险，且只有一个候选：先进入 `research_name_identity`，再回到主链路
+  - 明确或模糊风险，但候选数不为 1：记录 finding 后直接进入 PB 检查
 
 ### 下一阶段计划
 
@@ -158,7 +159,7 @@ flowchart TD
 下一阶段主要补的是 graph 输出能力，而不是大改前半段检查结构：
 
 - 前半段继续做检查与 finding 生成
-- `build_action_plan` 后续升级为真正的 `action bundle` 规划
+- `build_action_plan` 当前已经生成结构化 `action bundle`；节点名称暂时保留，后续如重命名需同步修改本图
 - 新增整组风险评估
 - 新增写动作执行与执行审计
 
@@ -176,7 +177,7 @@ flowchart TD
     检查 membership 时间线"]
     MEMBERSHIP --> NORMALIZATION["check_person_normalization_risk
     检查归一化风险"]
-    NORMALIZATION -->|模糊风险| RESEARCH["research_name_identity
+    NORMALIZATION -->|明确或模糊风险，且仅一个候选| RESEARCH["research_name_identity
     LLM / web search 判断姓名身份"]
     NORMALIZATION -->|其他情况| PB["check_personal_best_consistency
     检查 PB 一致性"]
@@ -208,11 +209,12 @@ flowchart TD
 当前已经实现 `batch runner`，但它还是 graph 外层 CLI，不是一张新的 LangGraph。
 
 - 从业务库读取 `Person`、`Membership`、`PersonalBest` 的最大更新时间
-- 从 agent 库读取该 person 最近一次最终治理时间
+- 从 agent 库读取该 person 最近一次成功治理时间
 - 比较后筛出需要治理的 person
 - 逐人调用 `person_diagnosis`
 - 将 findings、action bundle、风险等级和动作执行状态写入 agent 审计库
 - 默认 dry-run，不会写入主业务库
+- 目前仅已确认同人的 `merge_person_duplicate` 在显式开启写入后可执行；其他动作仍会记录为停放
 
 ### 维护规则
 
