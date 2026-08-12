@@ -40,9 +40,21 @@ published: true
 4. Wikipedia 找到明确字段时：追加 `profile_wikipedia_data_available` finding，才生成 `backfill_profile_from_wikipedia` action。
 5. 只有 profile 缺失的治理结果不计入 batch 的最终治理时间，后续调整 profile 策略或接入写入规则后仍可再次被捞取。
 
+#### 追加修正：Wikipedia 重定向安全边界
+
+直接调用 MediaWiki API 后，需要防止同名消歧义、缺页或重定向到不同姓名页面时误补 profile。`sato-aoi` 的实际日文名是 `佐藤碧`，该页面命中属于合法结果。
+
+因此补充规则：
+
+- agent 使用 MediaWiki API，不再依赖 LLM web search。
+- 网络出口优先使用标准代理环境变量；macOS 本地自动读取系统代理，因此会跟随 Clash Plus 的设置变化，不写死端口。
+- API 最终页面标题必须与输入日文名在去空格、全半角统一后完全一致。
+- 命中消歧义页、缺页或跳转到不同姓名页面时，一律不补全字段。
+
 #### 验证重点
 
-- profile-only case 不应再出现 `high` 风险或 `held`。
+- 只有 profile 缺失、且 Wikipedia 无可用资料时，不应出现 `high` 风险或 `held`。
+- Wikipedia 查到明确字段时会生成 profile 回填动作；在 profile 写执行器接入前，预期为 `medium / held`，且不写入业务库。
 - 无 Wikipedia 资料时 action bundle 应为空。
 - 有其他 finding 的 person 不受 profile 观察项影响。
 - 后续 batch 仍能重新选中仅 profile 缺失的 person。

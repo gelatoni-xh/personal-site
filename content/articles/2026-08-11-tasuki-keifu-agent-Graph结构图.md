@@ -85,7 +85,7 @@ flowchart TD
   检查 profile 字段缺失情况。缺失属于低优先级观察项，不直接生成写动作。
 
 - `research_profile_wikipedia`
-  仅在 profile 有缺失时运行。只允许 Wikipedia 作为来源；只有查到明确可补字段时，才追加待执行的 profile 动作。
+  仅在 profile 有缺失时运行。直接调用 Wikipedia MediaWiki API；网络优先使用标准代理环境变量，macOS 本地自动跟随系统代理。只有查到明确可补字段时，才追加待执行的 profile 动作。
 
 - `check_membership_timeline`
   检查 membership 时间线问题。

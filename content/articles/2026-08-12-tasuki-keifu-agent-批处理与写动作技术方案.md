@@ -154,7 +154,7 @@ batch runner
 - 执行前会重新读取并锁定两条 `Person`，确认 slug 与规范化姓名未变化
 - 单个事务会迁移 membership、PB、比赛成绩、来源映射，保留名称变体，清关系缓存，写入业务 `AuditLog`，再删除重复记录
 - 关联记录目前只迁移，不做 membership、PB 或比赛成绩的语义去重
-- profile 缺失只做一次 Wikipedia 薄查询；未找到可靠信息时不生成 action
+- profile 缺失只做一次 Wikipedia MediaWiki API 薄查询；网络优先使用标准 HTTP 代理环境变量，macOS 本地自动读取系统代理；未找到可靠信息时不生成 action
 - membership、PB 的动作仍只记录和停放，尚未接入写入规则
 
 ### 幂等与失败隔离
@@ -193,6 +193,8 @@ agent 审计库用于记录：
 - agent 数据库已增加 batch、person 治理记录和 action 执行审计
 - batch 默认 `dry-run`，可以完整跑筛人、诊断、动作规划、风险评估和审计记录
 - 高风险或当前未实现写入规则的动作会按 person 单独停放，不影响同一批其他人
+
+profile 的 Wikipedia 查询已经可以生成明确字段的回填动作；由于 profile 写执行器尚未接入，当前会按 `medium / held` 记录，不会写入业务库。
 
 ### 真实写入开关
 
