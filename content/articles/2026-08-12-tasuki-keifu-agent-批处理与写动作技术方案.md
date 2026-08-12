@@ -80,6 +80,8 @@ batch runner
 
 停放不代表失败。没有新业务数据时，不需要每个 batch 重复跑同一个高风险 case。
 
+补充边界：只有 `profile_coverage_missing_fields` 的结果不视为最终治理。profile 完整度属于可随策略变化重复检查的观察项；归一化、membership、PB 等实际治理结果仍按正常规则去重。
+
 第一版业务侧先看三类模型：
 
 - `Person`
@@ -152,7 +154,8 @@ batch runner
 - 执行前会重新读取并锁定两条 `Person`，确认 slug 与规范化姓名未变化
 - 单个事务会迁移 membership、PB、比赛成绩、来源映射，保留名称变体，清关系缓存，写入业务 `AuditLog`，再删除重复记录
 - 关联记录目前只迁移，不做 membership、PB 或比赛成绩的语义去重
-- membership、PB、profile 的动作仍只记录和停放，尚未接入写入规则
+- profile 缺失只做一次 Wikipedia 薄查询；未找到可靠信息时不生成 action
+- membership、PB 的动作仍只记录和停放，尚未接入写入规则
 
 ### 幂等与失败隔离
 

@@ -1,0 +1,48 @@
+---
+title: "2026-08-12-tasuki-keifu-agent-批处理优化记录"
+date: "2026-08-12"
+summary: "记录 tasuki-keifu-agent 真实批处理运行后的问题、优化与验证结果。"
+category: "个人项目"
+published: true
+---
+
+## tasuki-keifu-agent 批处理优化记录
+
+这份文档记录真实 batch 运行后发现的问题和对应优化。后续每次有代表性运行结果时，按 Case 继续追加。
+
+### Case 1：首轮小批量运行被 profile 缺失占满
+
+#### 运行结果
+
+- batchId：`03a417e1-ebe3-4a9b-9aea-5c52b67f2ea4`
+- 模式：dry-run
+- 人数：5
+- 失败：0
+- 归一化合并：0
+
+5 个 `person` 都只命中 `profile_coverage_missing_fields`，缺少出生日期、出身地、国籍和日文读音。
+
+#### 问题
+
+1. profile 缺失是当前数据导入的常见状态，不等同于已有数据错误。
+2. 原规则会把缺失 3 个以上字段标为 `high`，导致 batch 结果被低价值的缺失检查淹没。
+3. 原规则会为每个 profile 缺失生成 `backfill_profile_fields`，即使没有可靠来源可以补。
+4. 原 batch 会把这类停放结果当作最终治理，之后业务数据不更新时不会再次被选中。
+
+#### 优化
+
+1. `profile_coverage_missing_fields` 改为 `low`，定义为观察项。
+2. 新增 `research_profile_wikipedia` 节点：
+   - 只在 profile 有缺失时运行。
+   - 只允许 Wikipedia 作为来源。
+   - 只返回 Wikipedia 明确支持的缺失字段，不猜测、不扩大搜索范围。
+3. Wikipedia 未找到或不可用时：保留 profile 缺失 finding，但不生成 action。
+4. Wikipedia 找到明确字段时：追加 `profile_wikipedia_data_available` finding，才生成 `backfill_profile_from_wikipedia` action。
+5. 只有 profile 缺失的治理结果不计入 batch 的最终治理时间，后续调整 profile 策略或接入写入规则后仍可再次被捞取。
+
+#### 验证重点
+
+- profile-only case 不应再出现 `high` 风险或 `held`。
+- 无 Wikipedia 资料时 action bundle 应为空。
+- 有其他 finding 的 person 不受 profile 观察项影响。
+- 后续 batch 仍能重新选中仅 profile 缺失的 person。

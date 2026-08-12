@@ -49,7 +49,9 @@ flowchart TD
 
     SNAPSHOT --> PROFILE["check_profile_coverage
     检查 profile 字段缺失"]
-    PROFILE --> MEMBERSHIP["check_membership_timeline
+    PROFILE --> PROFILE_WIKI["research_profile_wikipedia
+    仅查 Wikipedia 的薄补全"]
+    PROFILE_WIKI --> MEMBERSHIP["check_membership_timeline
     检查 membership 时间线"]
     MEMBERSHIP --> NORMALIZATION["check_person_normalization_risk
     检查归一化风险"]
@@ -80,7 +82,10 @@ flowchart TD
  负责加载人物快照，包括 profile、memberships、personalBests。
 
 - `check_profile_coverage`
-  检查 profile 字段缺失情况。
+  检查 profile 字段缺失情况。缺失属于低优先级观察项，不直接生成写动作。
+
+- `research_profile_wikipedia`
+  仅在 profile 有缺失时运行。只允许 Wikipedia 作为来源；只有查到明确可补字段时，才追加待执行的 profile 动作。
 
 - `check_membership_timeline`
   检查 membership 时间线问题。
@@ -173,7 +178,9 @@ flowchart TD
     加载人物快照"]
     SNAPSHOT --> PROFILE["check_profile_coverage
     检查 profile 字段缺失"]
-    PROFILE --> MEMBERSHIP["check_membership_timeline
+    PROFILE --> PROFILE_WIKI["research_profile_wikipedia
+    仅查 Wikipedia 的薄补全"]
+    PROFILE_WIKI --> MEMBERSHIP["check_membership_timeline
     检查 membership 时间线"]
     MEMBERSHIP --> NORMALIZATION["check_person_normalization_risk
     检查归一化风险"]
