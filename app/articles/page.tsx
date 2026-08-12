@@ -5,7 +5,7 @@ export const metadata = {
   title: "文章",
 };
 
-const contentUpdatedAt = "2026-08-11";
+const contentUpdatedAt = "2026-08-12";
 const featuredSlug = "2026-08-11-tasuki-keifu-agent-Graph结构图";
 const pageSize = 10;
 
