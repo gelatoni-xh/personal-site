@@ -5,7 +5,7 @@ export const metadata = {
   title: "文章",
 };
 
-const contentUpdatedAt = "2026-08-12";
+const contentUpdatedAt = "2026-08-16";
 const featuredSlugs = [
   "2026-08-11-tasuki-keifu-agent-Graph结构图",
   "2026-06-26-AI辅助研发模式回顾",

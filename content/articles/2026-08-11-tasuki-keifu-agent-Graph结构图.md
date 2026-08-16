@@ -50,7 +50,7 @@ flowchart TD
     SNAPSHOT --> PROFILE["check_profile_coverage
     检查 profile 字段缺失"]
     PROFILE --> PROFILE_WIKI["research_profile_wikipedia
-    仅查 Wikipedia 的薄补全"]
+    查询 Wikipedia 的 profile 与 PB"]
     PROFILE_WIKI --> MEMBERSHIP["check_membership_timeline
     检查 membership 时间线"]
     MEMBERSHIP --> NORMALIZATION["check_person_normalization_risk
@@ -85,7 +85,7 @@ flowchart TD
   检查 profile 字段缺失情况。缺失属于低优先级观察项，不直接生成写动作。
 
 - `research_profile_wikipedia`
-  仅在 profile 有缺失时运行。直接调用 Wikipedia MediaWiki API；网络优先使用标准代理环境变量，macOS 本地自动跟随系统代理。只有查到明确可补字段时，才追加待执行的 profile 动作。
+  每次唯一命中的人物诊断都会调用一次 Wikipedia MediaWiki API，同时读取可补 profile 字段和明确的 PB。网络优先使用标准代理环境变量，macOS 本地自动跟随系统代理。
 
 - `check_membership_timeline`
   检查 membership 时间线问题。
@@ -108,7 +108,7 @@ flowchart TD
 
 - `evaluate_action_bundle_risk`
   以单个 `person` 为边界评估整组动作风险。
-  当前只有满足严格条件的 `merge_person_duplicate` 可进入计划执行；membership、PB、profile 等动作仍会停放，不会写入业务库。
+  当前可执行的动作包括严格确认的 `merge_person_duplicate`、Wikipedia profile 回填、Wikipedia PB 增补或更新、membership 异常标记和 PB 异常标记。身份不确定或候选异常的归一化动作仍会停放。
 
 ### 当前分支说明
 

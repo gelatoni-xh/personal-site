@@ -116,7 +116,7 @@ batch runner
 - `build_action_plan`
 - `evaluate_action_bundle_risk`
 
-其中 `build_action_plan` 已输出可审计的 `action bundle`；受严格条件保护的归一化合并已接入真实写入，其他动作仍停放。
+其中 `build_action_plan` 已输出可审计的 `action bundle`；归一化合并、Wikipedia profile/PB 写入，以及 membership/PB 冲突标记均已接入执行器。
 
 ### Action Bundle 与风险评估
 
@@ -154,8 +154,9 @@ batch runner
 - 执行前会重新读取并锁定两条 `Person`，确认 slug 与规范化姓名未变化
 - 单个事务会迁移 membership、PB、比赛成绩、来源映射，保留名称变体，清关系缓存，写入业务 `AuditLog`，再删除重复记录
 - 关联记录目前只迁移，不做 membership、PB 或比赛成绩的语义去重
-- profile 缺失只做一次 Wikipedia MediaWiki API 薄查询；网络优先使用标准 HTTP 代理环境变量，macOS 本地自动读取系统代理；未找到可靠信息时不生成 action
-- membership、PB 的动作仍只记录和停放，尚未接入写入规则
+- 每次唯一命中的人物诊断都会查询一次 Wikipedia MediaWiki API，读取可补 profile 字段和明确 PB；网络优先使用标准 HTTP 代理环境变量，macOS 本地自动读取系统代理
+- profile 只填当前为空的字段；Wikipedia PB 可新增或更新，同项目已有多条记录时新增 Wiki PB，不覆盖阶段性记录
+- membership、PB 的内部异常不猜测正确事实，先将涉及记录标记为 `conflicting`
 
 ### 幂等与失败隔离
 
@@ -194,7 +195,14 @@ agent 审计库用于记录：
 - batch 默认 `dry-run`，可以完整跑筛人、诊断、动作规划、风险评估和审计记录
 - 高风险或当前未实现写入规则的动作会按 person 单独停放，不影响同一批其他人
 
-profile 的 Wikipedia 查询已经可以生成明确字段的回填动作；由于 profile 写执行器尚未接入，当前会按 `medium / held` 记录，不会写入业务库。
+截至 2026-08-16，低风险执行器已经扩展到 profile、membership 和 PB：
+
+- `backfill_profile_from_wikipedia`：只填当前为空的 profile 字段，不覆盖已有值。
+- `upsert_personal_bests_from_wikipedia`：Wikipedia 明确列出的 PB 可新增或更新；同项目有多条既有记录时新增一条 Wiki PB，不覆盖阶段性记录。
+- `mark_memberships_conflicting`：对内部时间线异常的 membership 标记 `conflicting`，不删记录、不猜日期、不改组织。
+- `mark_personal_bests_conflicting`：对未被 Wikipedia 明确解决的 PB 冲突标记 `conflicting`，不删记录、不猜成绩。
+
+上述动作都会重新锁定目标记录、记录业务 `AuditLog`，并受 `--execute`、`TASUKI_AGENT_WRITE_ENABLED=true` 和独立写库连接三重开关保护。身份不确定、候选异常的归一化动作仍会整组停放。
 
 ### 真实写入开关
 

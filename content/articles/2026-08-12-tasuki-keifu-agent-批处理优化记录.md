@@ -58,3 +58,24 @@ published: true
 - 无 Wikipedia 资料时 action bundle 应为空。
 - 有其他 finding 的 person 不受 profile 观察项影响。
 - 后续 batch 仍能重新选中仅 profile 缺失的 person。
+
+### Case 2：将内部异常从“只报告”收敛为保守写动作
+
+#### 问题
+
+membership 和 PB 的内部异常此前只会生成 review action，执行器无法处理；即使数据已明显不可信，也会继续保留为普通 `pending` 状态。
+
+#### 优化
+
+1. Wikipedia 节点在一次单人治理中同时读取 profile 与 PB；页面标题不严格匹配、消歧义、缺页或解析不明确时不写入。
+2. Wikipedia profile 只回填空字段；Wikipedia PB 按项目新增或更新，并保留来源与审计。
+3. membership 时间线异常不猜测正确组织或日期，统一标记相关记录为 `conflicting`。
+4. 未被 Wikipedia 明确解决的 PB 冲突同样标记为 `conflicting`。
+5. 所有低风险 action 都在执行前重新锁定目标记录，并写入业务 `AuditLog`；身份不确定的归一化仍按整组高风险停放。
+
+#### 验证
+
+- membership 异常样本 `鬼塚翔太` 已生成 `mark_memberships_conflicting`，风险为 `low / planned`。
+- PB 冲突样本 `中野翔太` 已生成 `mark_personal_bests_conflicting`，风险为 `low / planned`。
+- `limit=3` 的真实 batch dry-run 完成 3 人、失败 0、停放 0；该批未命中新动作。
+- 当前 macOS 系统代理关闭时，Wikipedia 查询会返回 `unavailable` 并保留其他治理流程；不会生成猜测性写动作。
