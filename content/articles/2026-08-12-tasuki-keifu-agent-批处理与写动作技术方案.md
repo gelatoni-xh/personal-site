@@ -118,6 +118,17 @@ batch runner
 
 其中 `build_action_plan` 已输出可审计的 `action bundle`；归一化合并、Wikipedia profile/PB 写入，以及 membership/PB 冲突标记均已接入执行器。
 
+### 单人受控执行
+
+为了先验证一条真实低风险写入，而不是直接打开全局 batch 写模式，batch CLI 支持指定选手：
+
+```bash
+npm run governance:batch -- --person-slug kitsuki-rin
+npm run governance:batch -- --person-slug kitsuki-rin --execute
+```
+
+指定 `personSlug` 时，只绕过“最近是否已治理”的候选筛选，方便重复验证幂等动作；不会绕过写开关、写库连接或高风险停放规则。
+
 ### Action Bundle 与风险评估
 
 第一版不要把每个 finding 都立刻单独执行。
@@ -203,6 +214,10 @@ agent 审计库用于记录：
 - `mark_personal_bests_conflicting`：对未被 Wikipedia 明确解决的 PB 冲突标记 `conflicting`，不删记录、不猜成绩。
 
 上述动作都会重新锁定目标记录、记录业务 `AuditLog`，并受 `--execute`、`TASUKI_AGENT_WRITE_ENABLED=true` 和独立写库连接三重开关保护。身份不确定、候选异常的归一化动作仍会整组停放。
+
+2026-08-16 已完成第一条真实低风险写入：`kitsuki-rin` 的 4 条冲突 membership 被标记为 `conflicting`，业务审计与 agent action 执行记录均已验证。执行器的原生 SQL 更新会显式维护 `updatedAt`，保证后续 batch 的重新治理筛选仍以真实业务变更时间为准。
+
+同日还验证了两类 Wikipedia 事实写入：`sato-aoi` 回填出生日期与出身地；`abe-haruki` 回填国籍并新增或校验 6 项 PB。归一化候选现以规范化后的汉字日文名完全一致为前提；仅读音相同、汉字不同的记录默认是不同 person，不会阻塞这类低风险事实写入。
 
 ### 真实写入开关
 
