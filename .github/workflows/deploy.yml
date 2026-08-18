@@ -67,6 +67,17 @@ jobs:
             ENVEOF
             sudo docker load -i /tmp/personal-site-deploy/personal-site-image.tar.gz
             cd /opt/apps/personal-site
-            sudo docker compose up -d
+            sudo docker compose up -d --force-recreate
+            for attempt in $(seq 1 12); do
+              if curl -fsS http://127.0.0.1:3000/articles >/dev/null; then
+                break
+              fi
+              if [ "$attempt" -eq 12 ]; then
+                sudo docker compose ps
+                sudo docker compose logs --tail=100 personal-site
+                exit 1
+              fi
+              sleep 5
+            done
             sudo docker image prune -f
           EOF
