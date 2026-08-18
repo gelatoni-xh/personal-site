@@ -60,11 +60,11 @@ jobs:
             set -euo pipefail
             mkdir -p /opt/apps/personal-site
             cp /tmp/personal-site-deploy/docker-compose.yml /opt/apps/personal-site/docker-compose.yml
-            cat > /opt/apps/personal-site/.env <<'ENVEOF'
-            PERSONAL_SITE_IMAGE=personal-site:latest
-            NEXT_PUBLIC_SITE_URL=https://gelatoni.uk
-            TASUKI_KEIFU_AGENT_DATABASE_URL=${{ secrets.TASUKI_KEIFU_AGENT_DATABASE_URL }}
-            ENVEOF
+            printf '%s\n' \
+              'PERSONAL_SITE_IMAGE=personal-site:latest' \
+              'NEXT_PUBLIC_SITE_URL=https://gelatoni.uk' \
+              'TASUKI_KEIFU_AGENT_DATABASE_URL=${{ secrets.TASUKI_KEIFU_AGENT_DATABASE_URL }}' \
+              > /opt/apps/personal-site/.env
             sudo docker load -i /tmp/personal-site-deploy/personal-site-image.tar.gz
             cd /opt/apps/personal-site
             sudo docker compose up -d --force-recreate
