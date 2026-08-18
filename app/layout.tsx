@@ -28,6 +28,9 @@ export default function RootLayout({
                 <Link className="nav-link" href="https://tasukikeifu.com" rel="noreferrer" target="_blank">
                   襷の系譜
                 </Link>
+                <Link className="nav-link" href="/observability">
+                  观测
+                </Link>
                 <Link className="nav-link" href="/articles">
                   文章
                 </Link>

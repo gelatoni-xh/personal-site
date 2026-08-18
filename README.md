@@ -25,6 +25,7 @@ http://localhost:3000/articles
 ```
 
 The root path redirects to `/articles`.
+`/observability` shows the read-only agent dashboard.
 
 ## Content
 
@@ -68,6 +69,7 @@ Required GitHub repository secrets:
 UBUNTU3_HOST
 UBUNTU3_USER
 UBUNTU3_SSH_KEY
+TASUKI_KEIFU_AGENT_DATABASE_URL
 ```
 
 `UBUNTU3_SSH_KEY` uses a project-specific deploy key stored locally at:

@@ -63,6 +63,7 @@ jobs:
             cat > /opt/apps/personal-site/.env <<'ENVEOF'
             PERSONAL_SITE_IMAGE=personal-site:latest
             NEXT_PUBLIC_SITE_URL=https://gelatoni.uk
+            TASUKI_KEIFU_AGENT_DATABASE_URL=${{ secrets.TASUKI_KEIFU_AGENT_DATABASE_URL }}
             ENVEOF
             sudo docker load -i /tmp/personal-site-deploy/personal-site-image.tar.gz
             cd /opt/apps/personal-site
