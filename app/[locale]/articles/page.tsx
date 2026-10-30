@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getArticleCategories, getCategoryLabel, getPublishedArticles, type Locale } from "@/lib/content/articles";
+import { getArticleCategories, getCategoryId, getCategoryLabel, getPublishedArticles, type Locale } from "@/lib/content/articles";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -23,7 +23,8 @@ export default async function ArticlesPage({ params, searchParams }: Props) {
   const { category, page } = await searchParams;
   const articles = getPublishedArticles(locale as Locale);
   const categories = getArticleCategories(articles);
-  const activeCategory = category && categories.includes(category) ? category : undefined;
+  const requestedCategory = category && getCategoryId(category);
+  const activeCategory = requestedCategory && categories.includes(requestedCategory) ? requestedCategory : undefined;
   const filtered = activeCategory ? articles.filter((article) => article.category === activeCategory) : articles;
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(totalPages, Number.isInteger(Number(page)) && Number(page) > 0 ? Number(page) : 1);
@@ -39,7 +40,7 @@ export default async function ArticlesPage({ params, searchParams }: Props) {
   return <section>
     <p className="page-kicker">Writing</p>
     <h1 className="page-title">{english ? "Articles" : "文章"}</h1>
-    <p className="page-description">{english ? "English editions are added after editorial review." : "需求、架构、交付与个人项目的实践记录。"}</p>
+    <p className="page-description">{english ? "Engineering notes on requirements, architecture, delivery, and personal projects." : "需求、架构、交付与个人项目的实践记录。"}</p>
     <div className="mt-8 flex flex-wrap gap-2">
       <Link className={`border px-3 py-1.5 text-sm ${!activeCategory ? "border-ink bg-ink text-white" : "border-line bg-white"}`} href={`/${locale}/articles`}>{english ? "All" : "全部"}</Link>
       {categories.map((item) => <Link className={`border px-3 py-1.5 text-sm ${activeCategory === item ? "border-ink bg-ink text-white" : "border-line bg-white"}`} href={`/${locale}/articles?category=${encodeURIComponent(item)}`} key={item}>{getCategoryLabel(item, locale)}</Link>)}

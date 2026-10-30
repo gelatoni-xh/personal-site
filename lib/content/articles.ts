@@ -1,21 +1,20 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import categoryLabels from "@/content/article-categories.json";
 
 const articlesDirectory = path.join(process.cwd(), "content/articles");
 const englishArticlesDirectory = path.join(process.cwd(), "content/articles-en");
 export type Locale = "en" | "zh";
-const categoryOrder = ["蚂蚁集团-人事板块", "StablePay", "AI实践", "个人项目", "思考"];
-const englishCategories: Record<string, string> = {
-  "蚂蚁集团-人事板块": "Enterprise HR systems",
-  StablePay: "Payments",
-  "AI实践": "AI practice",
-  "个人项目": "Personal projects",
-  "思考": "Engineering notes",
-};
+const categories: Record<string, Record<Locale, string>> = categoryLabels;
+const categoryOrder = Object.keys(categories);
 
 export function getCategoryLabel(category: string, locale: Locale) {
-  return locale === "en" ? englishCategories[category] ?? category : category;
+  return categories[category]?.[locale] ?? category;
+}
+
+export function getCategoryId(value: string) {
+  return categoryOrder.find((id) => id === value || categories[id].zh === value || categories[id].en === value);
 }
 
 export interface Article {
@@ -35,7 +34,7 @@ function ensureArticlesDirectory() {
 }
 
 function normalizeCategory(value: unknown): string {
-  return typeof value === "string" && value.trim() ? value.trim() : "未分类";
+  return typeof value === "string" && value.trim() ? getCategoryId(value.trim()) ?? value.trim() : "uncategorized";
 }
 
 export function getArticleSlugs() {
@@ -45,6 +44,25 @@ export function getArticleSlugs() {
     .readdirSync(articlesDirectory)
     .filter((fileName) => fileName.endsWith(".md"))
     .map((fileName) => fileName.replace(/\.md$/, ""));
+}
+
+export function getCanonicalArticleSlug(slug: string): string | null {
+  let decodedSlug: string;
+
+  try {
+    decodedSlug = decodeURIComponent(slug);
+  } catch {
+    return null;
+  }
+
+  if (decodedSlug.includes("/") || decodedSlug.includes("\\") || decodedSlug.includes("..")) return null;
+  const slugs = getArticleSlugs();
+  if (slugs.includes(decodedSlug)) return decodedSlug;
+  if (!/^\d{4}-\d{2}-\d{2}-.+/.test(decodedSlug)) return null;
+
+  const suffix = decodedSlug.slice(11);
+  const matches = slugs.filter((candidate) => candidate.slice(11) === suffix);
+  return matches.length === 1 ? matches[0] : null;
 }
 
 export function getArticleBySlug(slug: string, locale: Locale = "zh"): Article | null {

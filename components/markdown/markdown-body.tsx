@@ -3,14 +3,16 @@ import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import { MermaidDiagram } from "@/components/markdown/mermaid-diagram";
 import { createHeadingId } from "@/lib/content/markdown";
+import type { Locale } from "@/lib/content/articles";
 import "highlight.js/styles/github.css";
 
 interface MarkdownBodyProps {
   content: string;
   className?: string;
+  articleLocale?: Locale;
 }
 
-export function MarkdownBody({ content, className }: MarkdownBodyProps) {
+export function MarkdownBody({ content, className, articleLocale }: MarkdownBodyProps) {
   const headingCounts = new Map<string, number>();
 
   return (
@@ -18,6 +20,12 @@ export function MarkdownBody({ content, className }: MarkdownBodyProps) {
       <ReactMarkdown
         className="prose prose-stone max-w-none prose-a:text-accent prose-pre:m-0 prose-pre:overflow-x-auto prose-pre:rounded-none prose-pre:border-0 prose-pre:bg-transparent prose-pre:p-0 prose-code:before:content-none prose-code:after:content-none"
         components={{
+          a({ href, ...props }) {
+            const articleHref = articleLocale && href?.startsWith("./") && href.endsWith(".md")
+              ? `/${articleLocale}/articles/${encodeURIComponent(decodeURIComponent(href.slice(2, -3)))}`
+              : href;
+            return <a href={articleHref} {...props} />;
+          },
           h2({ children, ...props }) {
             const text = String(children);
             const id = createHeadingId(text, headingCounts);

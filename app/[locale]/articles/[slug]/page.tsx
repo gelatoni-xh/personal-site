@@ -1,28 +1,32 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { MarkdownBody } from "@/components/markdown/markdown-body";
 import { extractMarkdownHeadings } from "@/lib/content/markdown";
-import { getArticleBySlug, getCategoryLabel, type Locale } from "@/lib/content/articles";
+import { getArticleBySlug, getCanonicalArticleSlug, getCategoryLabel, type Locale } from "@/lib/content/articles";
 
 interface Props { params: Promise<{ locale: string; slug: string }> }
 
 export async function generateMetadata({ params }: Props) {
   const { locale, slug } = await params;
   if (locale !== "en" && locale !== "zh") return {};
-  const article = getArticleBySlug(slug, locale);
+  const canonicalSlug = getCanonicalArticleSlug(slug);
+  const article = canonicalSlug ? getArticleBySlug(canonicalSlug, locale) : null;
   if (!article?.published) return {};
-  const english = getArticleBySlug(slug, "en")?.published;
-  const languages = english ? { en: `/en/articles/${slug}`, "zh-CN": `/zh/articles/${slug}` } : { "zh-CN": `/zh/articles/${slug}` };
-  return { title: article.title, description: article.summary, alternates: { canonical: `/${locale}/articles/${slug}`, languages } };
+  const english = getArticleBySlug(article.slug, "en")?.published;
+  const languages = english ? { en: `/en/articles/${article.slug}`, "zh-CN": `/zh/articles/${article.slug}` } : { "zh-CN": `/zh/articles/${article.slug}` };
+  return { title: article.title, description: article.summary, alternates: { canonical: `/${locale}/articles/${article.slug}`, languages } };
 }
 
 export default async function ArticlePage({ params }: Props) {
   const { locale, slug } = await params;
   if (locale !== "en" && locale !== "zh") notFound();
-  const article = getArticleBySlug(slug, locale as Locale);
+  const canonicalSlug = getCanonicalArticleSlug(slug);
+  if (!canonicalSlug) notFound();
+  if (canonicalSlug !== decodeURIComponent(slug)) permanentRedirect(`/${locale}/articles/${encodeURIComponent(canonicalSlug)}`);
+  const article = getArticleBySlug(canonicalSlug, locale as Locale);
   if (!article?.published) notFound();
   const other = locale === "en" ? "zh" : "en";
-  const counterpart = getArticleBySlug(slug, other);
+  const counterpart = getArticleBySlug(canonicalSlug, other);
   const headings = extractMarkdownHeadings(article.content);
 
   return <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10">
@@ -35,10 +39,10 @@ export default async function ArticlePage({ params }: Props) {
         <Link className="text-sm text-stone-500 hover:text-ink" href={`/${locale}/articles`}>{locale === "en" ? "All articles" : "全部文章"}</Link>
         <h1 className="page-title">{article.title}</h1>
         <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-stone-500"><time>{article.date}</time><span className="border border-line px-2 py-0.5">{getCategoryLabel(article.category, locale)}</span>
-          {counterpart?.published && <Link className="underline underline-offset-4 hover:text-ink" href={`/${other}/articles/${slug}`} hrefLang={other}>{locale === "en" ? "阅读中文版" : "Read in English"}</Link>}
+          {counterpart?.published && <Link className="underline underline-offset-4 hover:text-ink" href={`/${other}/articles/${canonicalSlug}`} hrefLang={other}>{locale === "en" ? "阅读中文版" : "Read in English"}</Link>}
         </div>
       </div>
-      <MarkdownBody className="mt-8" content={article.content} />
+      <MarkdownBody className="mt-8" content={article.content} articleLocale={locale as Locale} />
     </article>
   </div>;
 }

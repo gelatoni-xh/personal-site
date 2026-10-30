@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "check:articles": "node scripts/check-articles.mjs",
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {

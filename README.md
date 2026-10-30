@@ -37,6 +37,8 @@ content/articles/*.md
 
 English editions live in `content/articles-en/*.md`. Use the same filename as the Chinese original so the two versions share a stable slug. An article appears in the English index only when its English Markdown file exists and is published. Write and review each language separately; the site does not translate content at request time.
 
+Article filenames start with the frontmatter `date` (`YYYY-MM-DD`). Both language editions use the same filename and date. The `category` field stores a stable ID (`ant-hr`, `stablepay`, `ai-practice`, `personal-projects`, or `engineering-notes`); labels are defined for English and Chinese in `content/article-categories.json`. Run `pnpm check:articles` to validate article pairs, dates, categories, and relative article links.
+
 Resume:
 
 ```text
