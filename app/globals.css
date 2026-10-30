@@ -24,7 +24,7 @@ html {
   }
 
   .language-switcher {
-    @apply flex h-9 shrink-0 items-center border border-stone-400 bg-white p-0.5 shadow-sm;
+    @apply flex h-9 shrink-0 items-center border border-ink bg-white p-0.5 shadow-sm;
   }
 
   .language-option {
@@ -32,7 +32,7 @@ html {
   }
 
   .language-option-active {
-    @apply bg-ink text-white hover:bg-ink hover:text-white;
+    @apply bg-moss text-white hover:bg-moss hover:text-white;
   }
 
   .page-kicker {

@@ -41,7 +41,7 @@ export default async function ArticlesPage({ params, searchParams }: Props) {
   };
 
   return <section>
-    <p className="page-kicker">Writing</p>
+    <p className="page-kicker">{messages.kicker}</p>
     <h1 className="page-title">{messages.title}</h1>
     <p className="page-description">{messages.description}</p>
     <div className="mt-8 flex flex-wrap gap-2">

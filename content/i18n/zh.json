@@ -9,6 +9,7 @@
     "recentWriting": "最近文章"
   },
   "articles": {
+    "kicker": "文章",
     "metadataTitle": "文章",
     "metadataDescription": "需求、架构、交付与个人项目的实践记录。",
     "title": "文章",
