@@ -55,7 +55,7 @@ published: true
 
 ### AWS / 源站侧现状
 
-生产部署在 AWS Lightsail `Ubuntu-3`，公网 IP 为 `13.230.244.67`。
+生产部署在 AWS Lightsail `Ubuntu-3`。
 
 已确认状态：
 
