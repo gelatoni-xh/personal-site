@@ -21,10 +21,10 @@ pnpm dev
 Open:
 
 ```text
-http://localhost:3000/articles
+http://localhost:3000/en/articles
 ```
 
-The root path redirects to `/articles`.
+The root path redirects to `/en`. Existing `/articles` links redirect to the Chinese edition at `/zh/articles`.
 `/observability` shows the read-only agent dashboard.
 
 ## Content
@@ -34,6 +34,8 @@ Articles:
 ```text
 content/articles/*.md
 ```
+
+English editions live in `content/articles-en/*.md`. Use the same filename as the Chinese original so the two versions share a stable slug. An article appears in the English index only when its English Markdown file exists and is published. Write and review each language separately; the site does not translate content at request time.
 
 Resume:
 

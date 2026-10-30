@@ -3,7 +3,20 @@ import path from "node:path";
 import matter from "gray-matter";
 
 const articlesDirectory = path.join(process.cwd(), "content/articles");
+const englishArticlesDirectory = path.join(process.cwd(), "content/articles-en");
+export type Locale = "en" | "zh";
 const categoryOrder = ["蚂蚁集团-人事板块", "StablePay", "AI实践", "个人项目", "思考"];
+const englishCategories: Record<string, string> = {
+  "蚂蚁集团-人事板块": "Enterprise HR systems",
+  StablePay: "Payments",
+  "AI实践": "AI practice",
+  "个人项目": "Personal projects",
+  "思考": "Engineering notes",
+};
+
+export function getCategoryLabel(category: string, locale: Locale) {
+  return locale === "en" ? englishCategories[category] ?? category : category;
+}
 
 export interface Article {
   slug: string;
@@ -34,7 +47,7 @@ export function getArticleSlugs() {
     .map((fileName) => fileName.replace(/\.md$/, ""));
 }
 
-export function getArticleBySlug(slug: string): Article | null {
+export function getArticleBySlug(slug: string, locale: Locale = "zh"): Article | null {
   let normalizedSlug = slug;
 
   try {
@@ -47,7 +60,7 @@ export function getArticleBySlug(slug: string): Article | null {
     return null;
   }
 
-  const fullPath = path.join(articlesDirectory, `${normalizedSlug}.md`);
+  const fullPath = path.join(locale === "en" ? englishArticlesDirectory : articlesDirectory, `${normalizedSlug}.md`);
 
   if (!fs.existsSync(fullPath)) {
     return null;
@@ -68,9 +81,9 @@ export function getArticleBySlug(slug: string): Article | null {
   };
 }
 
-export function getPublishedArticles() {
+export function getPublishedArticles(locale: Locale = "zh") {
   return getArticleSlugs()
-    .map((slug) => getArticleBySlug(slug))
+    .map((slug) => getArticleBySlug(slug, locale))
     .filter((article): article is Article => Boolean(article && article.published))
     .sort((a, b) => {
       const dateOrder = b.date.localeCompare(a.date);
