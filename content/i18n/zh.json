@@ -1,0 +1,64 @@
+{
+  "nav": { "writing": "文章", "observability": "观测", "language": "语言", "english": "EN", "chinese": "中文" },
+  "home": {
+    "metadataTitle": "首页",
+    "metadataDescription": "徐涣的文章、工程实践与个人项目。",
+    "headline": "软件工程师：交付、系统与实践",
+    "intro": "从需求澄清、系统设计、实现与验证，到部署与后续观察。这里记录企业系统和个人项目中的决策与取舍。",
+    "readArticles": "阅读文章",
+    "recentWriting": "最近文章"
+  },
+  "articles": {
+    "metadataTitle": "文章",
+    "metadataDescription": "需求、架构、交付与个人项目的实践记录。",
+    "title": "文章",
+    "description": "需求、架构、交付与个人项目的实践记录。",
+    "all": "全部",
+    "previous": "上一页",
+    "next": "下一页",
+    "emptyCategory": "这个分类下暂无文章。",
+    "outline": "目录",
+    "allArticles": "全部文章",
+    "otherLanguage": "Read in English"
+  },
+  "observability": {
+    "metadataTitle": "观测面板",
+    "kicker": "Observability",
+    "title": "Agent 观测面板",
+    "description": "只读查看最近的 Agent 运行、治理、执行动作和结果。",
+    "backHome": "返回首页",
+    "readArticles": "阅读文章",
+    "openLangSmith": "打开 LangSmith",
+    "dataSource": "数据源",
+    "lastUpdated": "最后更新",
+    "langSmithProject": "LangSmith 项目",
+    "noValue": "暂无",
+    "noData": "暂无数据。",
+    "stats": {
+      "agentRuns": ["Agent 运行", "诊断任务总数"],
+      "governanceBatches": ["治理批次", "批处理总数"],
+      "subjects": ["治理对象", "进入治理的人或组织数"],
+      "actions": ["执行动作", "已规划或执行的动作数"]
+    },
+    "runStatus": "运行状态",
+    "governanceStatus": "治理状态",
+    "recentRuns": "最近运行",
+    "recentSubjects": "最近治理对象",
+    "recentActions": "最近动作",
+    "recentResults": "最近结果",
+    "currentNode": "当前节点",
+    "thread": "线程",
+    "risk": "风险",
+    "governanceRun": "治理 run",
+    "actionTitle": "动作标题",
+    "idempotencyKey": "幂等键",
+    "findings": "发现",
+    "resultActions": "动作",
+    "sourceStatus": { "configured": "已连接", "missing": "未配置", "error": "不可用" },
+    "sourceNote": {
+      "configured": "只读读取 Agent 运行库，不包含原始输入输出。",
+      "missing": "尚未配置 Agent 数据库连接。",
+      "error": "读取 Agent 数据失败。"
+    }
+  }
+}

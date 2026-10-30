@@ -1,0 +1,64 @@
+{
+  "nav": { "writing": "Writing", "observability": "Observability", "language": "Language", "english": "EN", "chinese": "中文" },
+  "home": {
+    "metadataTitle": "Home",
+    "metadataDescription": "Writing and engineering notes by Xuhuan.",
+    "headline": "Software engineer, writing about delivery and systems",
+    "intro": "I work across requirements, system design, implementation, testing, and deployment. These notes document decisions and trade-offs from enterprise systems and personal projects.",
+    "readArticles": "Read articles",
+    "recentWriting": "Recent writing"
+  },
+  "articles": {
+    "metadataTitle": "Writing",
+    "metadataDescription": "Engineering writing on delivery, systems, and personal projects.",
+    "title": "Articles",
+    "description": "Engineering notes on requirements, architecture, delivery, and personal projects.",
+    "all": "All",
+    "previous": "Previous",
+    "next": "Next",
+    "emptyCategory": "No articles in this category.",
+    "outline": "Outline",
+    "allArticles": "All articles",
+    "otherLanguage": "Read in Chinese"
+  },
+  "observability": {
+    "metadataTitle": "Observability dashboard",
+    "kicker": "Observability",
+    "title": "Agent observability",
+    "description": "Read-only view of recent agent runs, governance work, actions, and results.",
+    "backHome": "Back home",
+    "readArticles": "Read articles",
+    "openLangSmith": "Open LangSmith",
+    "dataSource": "Data source",
+    "lastUpdated": "Last updated",
+    "langSmithProject": "LangSmith project",
+    "noValue": "None",
+    "noData": "No data yet.",
+    "stats": {
+      "agentRuns": ["Agent runs", "Total diagnostic runs"],
+      "governanceBatches": ["Governance batches", "Total processing batches"],
+      "subjects": ["Subjects", "People or organizations in governance"],
+      "actions": ["Actions", "Planned or executed actions"]
+    },
+    "runStatus": "Run status",
+    "governanceStatus": "Governance status",
+    "recentRuns": "Recent runs",
+    "recentSubjects": "Recent governance subjects",
+    "recentActions": "Recent actions",
+    "recentResults": "Recent results",
+    "currentNode": "Current node",
+    "thread": "Thread",
+    "risk": "Risk",
+    "governanceRun": "Governance run",
+    "actionTitle": "Action title",
+    "idempotencyKey": "Idempotency key",
+    "findings": "Findings",
+    "resultActions": "Actions",
+    "sourceStatus": { "configured": "Connected", "missing": "Not configured", "error": "Unavailable" },
+    "sourceNote": {
+      "configured": "Reads the agent run database in read-only mode; raw inputs and outputs are excluded.",
+      "missing": "The agent database connection is not configured.",
+      "error": "Agent data could not be loaded."
+    }
+  }
+}

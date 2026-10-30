@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getArticleCategories, getCategoryId, getCategoryLabel, getPublishedArticles, type Locale } from "@/lib/content/articles";
+import { getMessages } from "@/lib/i18n";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -10,9 +11,11 @@ const pageSize = 10;
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
+  if (locale !== "en" && locale !== "zh") return {};
+  const messages = getMessages(locale).articles;
   return {
-    title: locale === "zh" ? "文章" : "Writing",
-    description: locale === "zh" ? "需求、架构、交付与个人项目的实践记录。" : "Engineering writing on delivery, systems, and personal projects.",
+    title: messages.metadataTitle,
+    description: messages.metadataDescription,
     alternates: { canonical: `/${locale}/articles`, languages: { en: "/en/articles", "zh-CN": "/zh/articles" } },
   };
 }
@@ -20,6 +23,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function ArticlesPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (locale !== "en" && locale !== "zh") notFound();
+  const messages = getMessages(locale).articles;
   const { category, page } = await searchParams;
   const articles = getPublishedArticles(locale as Locale);
   const categories = getArticleCategories(articles);
@@ -29,7 +33,6 @@ export default async function ArticlesPage({ params, searchParams }: Props) {
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(totalPages, Number.isInteger(Number(page)) && Number(page) > 0 ? Number(page) : 1);
   const visible = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  const english = locale === "en";
   const hrefForPage = (number: number) => {
     const query = new URLSearchParams();
     if (activeCategory) query.set("category", activeCategory);
@@ -39,10 +42,10 @@ export default async function ArticlesPage({ params, searchParams }: Props) {
 
   return <section>
     <p className="page-kicker">Writing</p>
-    <h1 className="page-title">{english ? "Articles" : "文章"}</h1>
-    <p className="page-description">{english ? "Engineering notes on requirements, architecture, delivery, and personal projects." : "需求、架构、交付与个人项目的实践记录。"}</p>
+    <h1 className="page-title">{messages.title}</h1>
+    <p className="page-description">{messages.description}</p>
     <div className="mt-8 flex flex-wrap gap-2">
-      <Link className={`border px-3 py-1.5 text-sm ${!activeCategory ? "border-ink bg-ink text-white" : "border-line bg-white"}`} href={`/${locale}/articles`}>{english ? "All" : "全部"}</Link>
+      <Link className={`border px-3 py-1.5 text-sm ${!activeCategory ? "border-ink bg-ink text-white" : "border-line bg-white"}`} href={`/${locale}/articles`}>{messages.all}</Link>
       {categories.map((item) => <Link className={`border px-3 py-1.5 text-sm ${activeCategory === item ? "border-ink bg-ink text-white" : "border-line bg-white"}`} href={`/${locale}/articles?category=${encodeURIComponent(item)}`} key={item}>{getCategoryLabel(item, locale)}</Link>)}
     </div>
     <div className="mt-10 grid gap-4">
@@ -51,12 +54,12 @@ export default async function ArticlesPage({ params, searchParams }: Props) {
         <h2 className="mt-3 text-xl font-semibold">{article.title}</h2>
         {article.summary && <p className="mt-2 text-sm leading-6 text-stone-600">{article.summary}</p>}
       </Link>)}
-      {visible.length === 0 && <p className="text-sm text-stone-500">{english ? "No articles in this category." : "这个分类下暂无文章。"}</p>}
+      {visible.length === 0 && <p className="text-sm text-stone-500">{messages.emptyCategory}</p>}
     </div>
     {totalPages > 1 && <nav className="mt-8 flex items-center justify-between text-sm">
-      {currentPage > 1 ? <Link href={hrefForPage(currentPage - 1)}>{english ? "Previous" : "上一页"}</Link> : <span />}
+      {currentPage > 1 ? <Link href={hrefForPage(currentPage - 1)}>{messages.previous}</Link> : <span />}
       <span>{currentPage} / {totalPages}</span>
-      {currentPage < totalPages ? <Link href={hrefForPage(currentPage + 1)}>{english ? "Next" : "下一页"}</Link> : <span />}
+      {currentPage < totalPages ? <Link href={hrefForPage(currentPage + 1)}>{messages.next}</Link> : <span />}
     </nav>}
   </section>;
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const locale = request.nextUrl.pathname.startsWith("/zh") ||
+  const locale = request.nextUrl.pathname === "/zh" || request.nextUrl.pathname.startsWith("/zh/") ||
     request.nextUrl.pathname.startsWith("/articles") ||
     request.nextUrl.pathname.startsWith("/resume") ||
     request.nextUrl.pathname.startsWith("/observability") ? "zh" : "en";
