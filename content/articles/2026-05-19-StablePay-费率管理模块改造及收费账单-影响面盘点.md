@@ -164,7 +164,7 @@ sequenceDiagram
 
 
 ### 4.3 生产样本观察
-本节记录 2026-06-04 从生产库抽取的 `settleplatform` 真实样本，用于校对当前 master 链路与本次改造后的验收口径。
+本节记录 2026-06-04 从生产库抽取的 `settleplatform` 真实样本，用于校对当前 master 链路与本次改造后的验收口径。下表中的商户和记录标识已匿名化。
 
 当前生产链路特征：
 - 实时交易归集阶段会先生成 `settlement_summary` 和 `settlement_detail`，此时支付费用通常仍为 0。
@@ -177,20 +177,20 @@ sequenceDiagram
 
 | 场景 | 表 | 主键 | 商户 | 结算日 | 链/币种 | 金额观察 | 状态 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 实时归集后、日结前 | `settlement_summary` | `0a0396e6-c196-4f99-9219-242d992e9e53` | `8000579819299567` | `2026-06-05` | BSC / USDT | `payment_gross_amount=50000`、`payment_fee_amount=0`、`payment_net_amount=50000` | `pending` |
-| 实时归集后、日结前 | `settlement_detail` | `20260604110200301995610000115151` | `8000579819299567` | `2026-06-05` | BSC / USDT | `amount=50000`、`amount_received=50000`、`fee_amount=0`、费用快照字段为空 | `status=4` |
-| 日结完成后 | `settlement_summary` | `54382daa-2fa7-40ad-994b-cd9e0e486935` | `8000579819299567` | `2026-06-04` | BSC / USDT | `payment_gross_amount=1000`、`payment_fee_amount=10`、`payment_net_amount=990` | `completed` |
-| 日结完成后 | `settlement_detail` | `20260603110200301995610000115141` | `8000579819299567` | `2026-06-04` | BSC / USDT | `amount=1000`、`amount_received=1000`、`fee_amount=0`、费用快照字段为空 | `status=4` |
-| 日结完成后 | `settlement_pipeline` | `23766660-e580-45cd-a8b9-e2f8714fece6` | `8000579819299567` | `2026-06-04` | - | `flow_type=custody`、`current_step=BALANCE_UPDATE`、`retry_count=1` | `COMPLETED` |
+| 实时归集后、日结前 | `settlement_summary` | `summary_pending_example` | `merchant_example_a` | `2026-06-05` | BSC / USDT | `payment_gross_amount=50000`、`payment_fee_amount=0`、`payment_net_amount=50000` | `pending` |
+| 实时归集后、日结前 | `settlement_detail` | `detail_pending_example` | `merchant_example_a` | `2026-06-05` | BSC / USDT | `amount=50000`、`amount_received=50000`、`fee_amount=0`、费用快照字段为空 | `status=4` |
+| 日结完成后 | `settlement_summary` | `summary_completed_example` | `merchant_example_a` | `2026-06-04` | BSC / USDT | `payment_gross_amount=1000`、`payment_fee_amount=10`、`payment_net_amount=990` | `completed` |
+| 日结完成后 | `settlement_detail` | `detail_completed_example` | `merchant_example_a` | `2026-06-04` | BSC / USDT | `amount=1000`、`amount_received=1000`、`fee_amount=0`、费用快照字段为空 | `status=4` |
+| 日结完成后 | `settlement_pipeline` | `pipeline_completed_example` | `merchant_example_a` | `2026-06-04` | - | `flow_type=custody`、`current_step=BALANCE_UPDATE`、`retry_count=1` | `COMPLETED` |
 
 其他可复用 completed 样本：
 
 | `summary_id` | 商户 | 结算日 | 链/币种 | `payment_tx_count` | `payment_gross_amount` | `payment_fee_amount` | `payment_net_amount` |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `f3a9a635-efce-4f5a-9520-3aa3b8a0a6a3` | `8000262557535555` | `2026-06-04` | TRON / USDT | 1 | 51744 | 776 | 50968 |
-| `12b2cac2-fa86-4a3f-adf1-852eaa91b00a` | `8000820970144915` | `2026-06-03` | BSC / USDT | 5 | 18637 | 148 | 18489 |
-| `c77f7c9c-8bc9-47ca-9650-250281542b73` | `8000087797117025` | `2026-06-03` | SOLANA / USDC | 1 | 100 | 1 | 99 |
-| `2a458521-cb4a-4331-84ed-ab546dc907b4` | `8000579819299567` | `2026-06-02` | BSC / USDT | 6 | 1716 | 17 | 1699 |
+| `summary_example_b` | `merchant_example_b` | `2026-06-04` | TRON / USDT | 1 | 51744 | 776 | 50968 |
+| `summary_example_c` | `merchant_example_c` | `2026-06-03` | BSC / USDT | 5 | 18637 | 148 | 18489 |
+| `summary_example_d` | `merchant_example_d` | `2026-06-03` | SOLANA / USDC | 1 | 100 | 1 | 99 |
+| `summary_example_e` | `merchant_example_a` | `2026-06-02` | BSC / USDT | 6 | 1716 | 17 | 1699 |
 
 对本期改造的校对意义：
 - `chargecore` 接入后，`settleplatform` 仍应保持 summary 层的收费结果口径：`payment_net_amount = payment_gross_amount - payment_fee_amount`。
