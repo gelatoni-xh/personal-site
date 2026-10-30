@@ -1,6 +1,6 @@
 ---
-title: "2026-08-12-tasuki-keifu-agent-批处理与写动作技术方案"
-date: "2026-08-12"
+title: "2026-10-27-tasuki-keifu-agent-批处理与写动作技术方案"
+date: "2026-10-27"
 summary: "记录 tasuki-keifu-agent 批处理、action bundle、风险停放与审计闭环的第一版技术方案和当前实现边界。"
 category: "个人项目"
 published: true

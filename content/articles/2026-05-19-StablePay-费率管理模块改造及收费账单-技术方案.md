@@ -1,6 +1,6 @@
 ---
-title: "2026-05-19-StablePay-费率管理模块改造及收费账单-技术方案"
-date: "2026-05-19"
+title: "2026-08-11-StablePay-费率管理模块改造及收费账单-技术方案"
+date: "2026-08-11"
 category: "StablePay"
 published: true
 ---

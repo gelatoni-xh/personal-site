@@ -1,11 +1,11 @@
 ---
-title: "2026-06-27-personal-site项目初始化技术方案"
-date: "2026-06-27"
+title: "2026-09-03-personal-site项目初始化技术方案"
+date: "2026-09-03"
 category: "个人项目"
 published: true
 ---
 
-# 2026-06-27 personal-site 项目初始化技术方案
+# 2026-09-03 personal-site 项目初始化技术方案
 
 创建日期：2026-06-27
 

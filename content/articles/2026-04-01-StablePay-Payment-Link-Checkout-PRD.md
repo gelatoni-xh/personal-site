@@ -1,6 +1,6 @@
 ---
-title: "2026-04-01-StablePay-Payment-Link-Checkout-PRD"
-date: "2026-04-01"
+title: "2026-08-03-StablePay-Payment-Link-Checkout-PRD"
+date: "2026-08-03"
 category: "StablePay"
 published: true
 ---

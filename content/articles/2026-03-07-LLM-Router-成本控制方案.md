@@ -1,6 +1,6 @@
 ---
-title: "2026-03-07-LLM-Router-成本控制方案"
-date: "2026-03-07"
+title: "2026-07-22-LLM-Router-成本控制方案"
+date: "2026-07-22"
 category: "AI实践"
 published: true
 ---

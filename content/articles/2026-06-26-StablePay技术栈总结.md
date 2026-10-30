@@ -1,11 +1,11 @@
 ---
-title: "2026-06-26-StablePay技术栈总结"
-date: "2026-06-26"
+title: "2026-09-01-StablePay技术栈总结"
+date: "2026-09-01"
 category: "StablePay"
 published: true
 ---
 
-# 2026-06-26 StablePay 技术栈总结
+# 2026-09-01 StablePay 技术栈总结
 
 ## 总体判断
 

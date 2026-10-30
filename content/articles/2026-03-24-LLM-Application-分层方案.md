@@ -1,6 +1,6 @@
 ---
-title: "2026-03-24-LLM-Application-分层方案"
-date: "2026-03-24"
+title: "2026-07-29-LLM-Application-分层方案"
+date: "2026-07-29"
 category: "AI实践"
 published: true
 ---
