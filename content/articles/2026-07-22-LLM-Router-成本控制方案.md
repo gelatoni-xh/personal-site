@@ -1,5 +1,5 @@
 ---
-title: "2026-07-22-LLM-Router-成本控制方案"
+title: "LLM-Router-成本控制方案"
 date: "2026-07-22"
 category: "ai-practice"
 published: true

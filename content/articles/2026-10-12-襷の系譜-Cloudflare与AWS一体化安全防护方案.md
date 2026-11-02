@@ -1,5 +1,5 @@
 ---
-title: "2026-10-12-襷の系譜-Cloudflare与AWS一体化安全防护方案"
+title: "襷の系譜-Cloudflare与AWS一体化安全防护方案"
 date: "2026-10-12"
 category: "personal-projects"
 published: true

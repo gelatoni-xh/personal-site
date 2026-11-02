@@ -1,5 +1,5 @@
 ---
-title: "2026-10-20-tasuki-keifu-agent-归一化优化设计"
+title: "tasuki-keifu-agent-归一化优化设计"
 date: "2026-10-20"
 summary: "围绕 tasuki-keifu-agent 的选手归一化能力做第一轮正式设计，先聚焦名字候选召回、规则判断和 LLM 搜索分支。"
 category: "personal-projects"

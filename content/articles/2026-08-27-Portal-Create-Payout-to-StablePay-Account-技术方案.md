@@ -1,5 +1,5 @@
 ---
-title: "2026-08-27-Portal-Create-Payout-to-StablePay-Account-技术方案"
+title: "Portal-Create-Payout-to-StablePay-Account-技术方案"
 date: "2026-08-27"
 category: "stablepay"
 published: true

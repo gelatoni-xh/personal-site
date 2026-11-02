@@ -1,5 +1,5 @@
 ---
-title: "2026-10-30-tasuki-keifu-agent-批处理优化记录"
+title: "tasuki-keifu-agent-批处理优化记录"
 date: "2026-10-30"
 summary: "记录 tasuki-keifu-agent 真实批处理运行后的问题、优化与验证结果。"
 category: "personal-projects"

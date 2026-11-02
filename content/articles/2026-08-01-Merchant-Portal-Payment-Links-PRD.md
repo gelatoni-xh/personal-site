@@ -1,5 +1,5 @@
 ---
-title: "2026-08-01-Merchant-Portal-Payment-Links-PRD"
+title: "Merchant-Portal-Payment-Links-PRD"
 date: "2026-08-01"
 category: "stablepay"
 published: true

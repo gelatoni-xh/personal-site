@@ -1,5 +1,5 @@
 ---
-title: "2026-10-22-tasuki-keifu-agent-Graph结构图"
+title: "tasuki-keifu-agent-Graph结构图"
 date: "2026-10-22"
 summary: "记录 tasuki-keifu-agent 当前 graph、batch runner 与 action bundle 风险评估结构，后续修改 graph 时统一维护。"
 category: "personal-projects"

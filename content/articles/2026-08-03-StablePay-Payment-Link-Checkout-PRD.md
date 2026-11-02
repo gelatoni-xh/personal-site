@@ -1,5 +1,5 @@
 ---
-title: "2026-08-03-StablePay-Payment-Link-Checkout-PRD"
+title: "StablePay-Payment-Link-Checkout-PRD"
 date: "2026-08-03"
 category: "stablepay"
 published: true

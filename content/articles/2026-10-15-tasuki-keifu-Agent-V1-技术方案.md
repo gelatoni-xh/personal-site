@@ -1,5 +1,5 @@
 ---
-title: "2026-10-15-tasuki-keifu-Agent-V1-技术方案"
+title: "tasuki-keifu-Agent-V1-技术方案"
 date: "2026-10-15"
 summary: "为 tasuki-keifu 设计一个面向数据维护与资料诊断的业务型 Agent V1，先从 person diagnosis graph 起步。"
 category: "personal-projects"

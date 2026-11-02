@@ -1,5 +1,5 @@
 ---
-title: "2026-08-19-Portal-Payouts-Claim-Transactions-PRD-补充"
+title: "Portal-Payouts-Claim-Transactions-PRD-补充"
 date: "2026-08-19"
 category: "stablepay"
 published: true

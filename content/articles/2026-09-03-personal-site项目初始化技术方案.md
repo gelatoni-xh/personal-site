@@ -1,5 +1,5 @@
 ---
-title: "2026-09-03-personal-site项目初始化技术方案"
+title: "personal-site项目初始化技术方案"
 date: "2026-09-03"
 category: "personal-projects"
 published: true

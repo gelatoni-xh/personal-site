@@ -1,5 +1,5 @@
 ---
-title: "2026-09-01-StablePay技术栈总结"
+title: "StablePay技术栈总结"
 date: "2026-09-01"
 category: "stablepay"
 published: true

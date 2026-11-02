@@ -1,5 +1,5 @@
 ---
-title: "2026-08-21-StablePay-chargecore-收费执行规划方案"
+title: "StablePay-chargecore-收费执行规划方案"
 date: "2026-08-21"
 category: "stablepay"
 published: true

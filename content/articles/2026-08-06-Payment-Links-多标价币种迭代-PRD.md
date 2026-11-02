@@ -1,5 +1,5 @@
 ---
-title: "2026-08-06-Payment-Links-多标价币种迭代-PRD"
+title: "Payment-Links-多标价币种迭代-PRD"
 date: "2026-08-06"
 category: "stablepay"
 published: true

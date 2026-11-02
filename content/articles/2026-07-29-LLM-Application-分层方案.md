@@ -1,5 +1,5 @@
 ---
-title: "2026-07-29-LLM-Application-分层方案"
+title: "LLM-Application-分层方案"
 date: "2026-07-29"
 category: "ai-practice"
 published: true
