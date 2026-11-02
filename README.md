@@ -9,7 +9,7 @@ Minimal personal site for articles and resume.
 - Tailwind CSS
 - Markdown content with `react-markdown`
 - Docker image deployment
-- GitHub Actions + GHCR + Ubuntu-3 Docker Compose
+- GitHub Actions + Docker image archive over SSH + Ubuntu-3 Docker Compose
 
 ## Local Development
 
@@ -52,7 +52,7 @@ Article frontmatter:
 title: "Title"
 date: "2026-06-27"
 summary: "Short summary"
-category: "个人项目"
+category: "personal-projects"
 published: true
 ---
 ```
