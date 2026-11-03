@@ -1,6 +1,8 @@
-# personal-site
+# Gelatoni | Personal Site
 
-Minimal personal site for articles and resume.
+A bilingual home for engineering articles, project notes, and a concise professional profile.
+
+[Visit gelatoni.uk](https://gelatoni.uk) · [Read in English](https://gelatoni.uk/en) · [阅读中文](https://gelatoni.uk/zh)
 
 ## Stack
 
