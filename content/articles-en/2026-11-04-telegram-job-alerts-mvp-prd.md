@@ -1,14 +1,14 @@
 ---
 title: "Telegram Job Alerts MVP — Product Requirements"
 date: "2026-11-04"
-summary: "A single-source Telegram MVP for job search, filter-based subscriptions, and daily alerts, with matching rules, delivery reliability, and acceptance criteria."
+summary: "An English-language remote job search and alert product, with matching rules, reliability expectations, administrator monitoring, and MVP acceptance criteria."
 category: "personal-projects"
 published: true
 ---
 
 # Telegram Job Alerts MVP — Product Requirements
 
-Version: v0.1, pending review. Date: November 4, 2026.
+Version: v0.2. Date: November 4, 2026.
 
 This document records the confirmed product decisions and proposes defaults for routine interactions. Items described as defaults remain open for review; they have not each been explicitly approved. The MVP is assessed against a complete, usable user journey rather than a development-hour budget.
 
@@ -161,6 +161,17 @@ For keyword-demand analysis, retain only necessary, sanitized statistics by defa
 Observe start-to-search-to-subscription conversion, zero-result rate, search demand versus supply by country and occupation, the share of users receiving nonempty digests, job clicks, active use after 7 and 14 days, and pause/delete/unreachable events. The Bot API does not expose private-chat message read rates. Successful delivery is not a read receipt. Users may stop because they found work, so departure alone does not establish product failure.
 
 Do not invent mandatory growth targets. Keep low-supply segments accessible and use their demand signals to guide future source research. Actual demand and cost should determine expansion.
+
+### Administrator monitoring views
+
+The MVP provides two read-only commands in the administrator's private Telegram chat:
+
+- `/stats` shows the business overview and daily measures: new users, active users, interactions, current registered users, and users with enabled alerts. The administrator is excluded from these business metrics.
+- `/activity` shows counts by instrumented product-event type for today so far and the last seven complete calendar days in Asia/Shanghai. It separates all users, other users excluding the administrator, and the administrator. This lets the administrator verify instrumentation with real usage while observing external users separately.
+
+Event categories use existing instrumentation, such as start, completed search, result-page view, zero results, job opened, and subscription create/edit/pause/resume/delete. This is not a list of every Telegram message or button update. Reports contain no user IDs, chat content, or per-user records. Events are retained for 90 days and are removed with the associated account when it is deleted. Zero means that no event was recorded; it does not establish service availability.
+
+The public profile and daily email use a separate, minimal aggregate and continue to exclude the administrator. Self-testing data must not enter public reports. A silent pinned JSON message in the administrator chat is read by the profile workflow through Telegram Bot API `getChat`; it currently contains only aggregate fields needed by the public report and does not include `/activity` event categories. The Bot API cannot read command replies or arbitrary chat history, so Codex cannot automatically read `/activity` today. If that becomes necessary, explicitly extend the pinned aggregate schema while continuing to export aggregate data only.
 
 ## 9. MVP acceptance scenarios
 
