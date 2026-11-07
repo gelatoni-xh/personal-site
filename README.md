@@ -15,6 +15,8 @@ A bilingual home for engineering articles, project notes, and a concise professi
 
 ## Local Development
 
+Use Node.js 22, matching the deployment workflow, and the pnpm version pinned in `package.json`.
+
 ```bash
 pnpm install
 pnpm dev
