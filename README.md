@@ -31,6 +31,14 @@ http://localhost:3000/en/articles
 The root path redirects to `/en`. Existing `/articles` links redirect to the Chinese edition at `/zh/articles`.
 `/observability` shows the read-only agent dashboard.
 
+Before opening a pull request, validate the content, generated route types, and production build:
+
+```bash
+pnpm check:articles
+pnpm typecheck
+pnpm build
+```
+
 ## Content
 
 Articles:
