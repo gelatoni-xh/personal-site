@@ -22,6 +22,9 @@ pnpm install
 pnpm dev
 ```
 
+To override the example site URL for local development, copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SITE_URL` to `http://localhost:3000`.
+The optional `TASUKI_KEIFU_AGENT_DATABASE_URL` enables the agent dashboard's database connection; without it, `/observability` displays a missing-configuration notice.
+
 Open:
 
 ```text
