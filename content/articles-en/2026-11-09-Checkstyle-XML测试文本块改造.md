@@ -1,5 +1,5 @@
 ---
-title: "Replace multi-line string concatenations with text blocks for better readability"
+title: "Checkstyle #21417: Replace multi-line string concatenations with text blocks for better readability"
 date: "2026-11-09"
 summary: "We replaced XML string concatenations in two test classes, preserved cross-platform output, addressed CI feedback, and completed a first upstream merge."
 category: "open-source"
