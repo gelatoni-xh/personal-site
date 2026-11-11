@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { GovernanceAccess } from "@/components/governance-access";
 import { getLocaleFromPathname, getMessages } from "@/lib/i18n";
 
 export function SiteHeader() {
@@ -25,6 +26,7 @@ export function SiteHeader() {
       <nav className="flex flex-wrap items-center gap-1 text-sm" aria-label="Primary navigation">
         <a className="nav-link" href="https://tasukikeifu.com" rel="noreferrer" target="_blank">Tasuki Keifu</a>
         <Link className="nav-link" href={`${base}/articles`}>{messages.nav.writing}</Link>
+        <GovernanceAccess locale={locale} />
       </nav>
     </div>
   </header>;
