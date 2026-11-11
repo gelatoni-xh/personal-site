@@ -9,7 +9,7 @@ interface Props {
 
 export function GovernanceAccess({ locale }: Props) {
   const [authenticated, setAuthenticated] = useState(false);
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = useState(true);
   const labels = locale === "zh"
     ? { login: "管理员登录", dashboard: "治理观测", checking: "检查权限" }
     : { login: "Admin login", dashboard: "Governance", checking: "Checking access" };
