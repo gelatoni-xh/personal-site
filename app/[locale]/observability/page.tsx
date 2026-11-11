@@ -1,128 +1,232 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getObservabilityOverview } from "@/lib/observability";
-import { getMessages } from "@/lib/i18n";
-import type { Locale } from "@/lib/content/articles";
 
 export const dynamic = "force-dynamic";
-
-interface Props { params: Promise<{ locale: string }> }
-
+interface Props {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ task?: string }>;
+}
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
-  if (locale !== "en" && locale !== "zh") return {};
-  return { title: getMessages(locale).observability.metadataTitle, robots: { index: false, follow: false } };
+  return {
+    title: locale === "zh" ? "数据治理观测" : "Data governance",
+    robots: { index: false, follow: false },
+  };
 }
-
-function formatDateTime(value: string | null, locale: Locale, fallback: string) {
-  if (!value) return fallback;
-  return new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : "en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
+function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="border border-line px-2 py-1 font-mono text-xs">
+      {children}
+    </span>
+  );
 }
-
-function countTotal(values: Record<string, number>) {
-  return Object.values(values).reduce((sum, value) => sum + value, 0);
-}
-
-function StatCard({ label, value, hint }: { label: string; value: string; hint: string }) {
-  return <div className="panel border-ink/70">
-    <p className="text-xs font-medium text-stone-500">{label}</p>
-    <p className="mt-3 text-3xl font-semibold text-ink">{value}</p>
-    <p className="mt-2 text-sm text-stone-500">{hint}</p>
-  </div>;
-}
-
-export default async function ObservabilityPage({ params }: Props) {
+const number = (v: unknown) => Number(v ?? 0).toLocaleString();
+export default async function ObservabilityPage({
+  params,
+  searchParams,
+}: Props) {
   const { locale } = await params;
   if (locale !== "en" && locale !== "zh") notFound();
-  const t = getMessages(locale).observability;
-  const overview = await getObservabilityOverview();
-  const langSmithProject = process.env.LANGSMITH_PROJECT ?? "tasuki-keifu-agent-v1";
-  const date = (value: string | null) => formatDateTime(value, locale, t.noValue);
-
-  return <section className="space-y-10">
-    <div className="border-b border-line pb-8">
-      <p className="page-kicker">{t.kicker}</p>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="page-title">{t.title}</h1>
-          <p className="page-description">{t.description}</p>
+  const t = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const data = await getObservabilityOverview((await searchParams).task);
+  const current = data.tasks.find((task) => task.id === data.selectedTaskId);
+  return (
+    <section className="space-y-8">
+      <header className="border-b border-line pb-6">
+        <p className="page-kicker">TASUKI KEIFU</p>
+        <h1 className="page-title">{t("数据治理观测", "Data governance")}</h1>
+        <p className="page-description">
+          {t(
+            "按赛事、区组和 Agent 追踪导入、修复与未解决事项。",
+            "Follow event imports, batch corrections and unresolved issues.",
+          )}
+        </p>
+        <Link href={`/${locale}`} className="text-sm underline">
+          {t("返回首页", "Home")}
+        </Link>
+      </header>
+      {data.source !== "configured" && (
+        <p className="panel">
+          {data.source === "missing"
+            ? t(
+                "尚未配置治理只读数据连接。",
+                "Governance read connection is not configured.",
+              )
+            : t(
+                "暂时无法读取治理数据。",
+                "Governance data is temporarily unavailable.",
+              )}
+        </p>
+      )}
+      <nav
+        className="flex flex-wrap gap-3"
+        aria-label={t("赛事任务", "Event tasks")}
+      >
+        {data.tasks.map((task) => (
+          <Link
+            key={task.id}
+            href={`/${locale}/observability?task=${task.id}`}
+            className={`border px-3 py-2 text-xs ${task.id === data.selectedTaskId ? "border-ink bg-stone-100" : "border-line"}`}
+          >
+            <span className="font-mono">{task.id.slice(0, 8)}</span> ·{" "}
+            {task.status} · {task.mode}
+          </Link>
+        ))}
+      </nav>
+      {current && (
+        <div className="panel space-y-3">
+          <div className="flex flex-wrap gap-2">
+            <Badge>{current.status}</Badge>
+            <Badge>{current.mode}</Badge>
+          </div>
+          <p className="break-all font-mono text-xs">{current.id}</p>
+          <p>
+            {t("导入", "Imported")} {number(current.summary?.importedRows)} ·{" "}
+            {t("修复", "Repairs")} {number(current.summary?.repairs)} ·{" "}
+            {t("计划修复", "Planned repairs")}{" "}
+            {number(current.summary?.plannedRepairs)} · unresolved{" "}
+            {number(current.summary?.unresolved)}
+          </p>
         </div>
-        <div className="flex flex-wrap gap-2 text-sm">
-          <Link className="border border-line bg-white px-3 py-2" href={`/${locale}`}>{t.backHome}</Link>
-          <Link className="border border-line bg-white px-3 py-2" href={`/${locale}/articles`}>{t.readArticles}</Link>
-          <a className="border border-line bg-white px-3 py-2" href="https://smith.langchain.com" rel="noreferrer" target="_blank">{t.openLangSmith}</a>
-        </div>
-      </div>
-      <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-xs text-stone-500">
-        <span>{t.dataSource}: {t.sourceStatus[overview.source]}</span>
-        <span>{t.lastUpdated}: {date(overview.updatedAt)}</span>
-        <span>{t.langSmithProject}: {langSmithProject}</span>
-      </div>
-      <p className="mt-3 text-sm text-stone-500">{t.sourceNote[overview.source]}</p>
-    </div>
-
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <StatCard label={t.stats.agentRuns[0]} value={`${countTotal(overview.counts.agentRuns)}`} hint={t.stats.agentRuns[1]} />
-      <StatCard label={t.stats.governanceBatches[0]} value={`${countTotal(overview.counts.governanceBatches)}`} hint={t.stats.governanceBatches[1]} />
-      <StatCard label={t.stats.subjects[0]} value={`${countTotal(overview.counts.governanceSubjects)}`} hint={t.stats.subjects[1]} />
-      <StatCard label={t.stats.actions[0]} value={`${countTotal(overview.counts.actionExecutions)}`} hint={t.stats.actions[1]} />
-    </div>
-
-    <div className="grid gap-4 lg:grid-cols-2">
-      {([
-        [t.runStatus, overview.counts.agentRuns],
-        [t.governanceStatus, overview.counts.governanceSubjects],
-      ] as const).map(([title, values]) => <div className="panel" key={title}>
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <div className="mt-4 space-y-3 text-sm">
-          {Object.entries(values).map(([status, value]) => <div className="flex justify-between gap-4" key={status}><span className="capitalize text-stone-600">{status}</span><span className="font-mono">{value}</span></div>)}
-          {Object.keys(values).length === 0 && <p className="text-stone-500">{t.noData}</p>}
-        </div>
-      </div>)}
-    </div>
-
-    <div className="grid gap-4 xl:grid-cols-2">
-      <div className="panel"><h2 className="text-lg font-semibold">{t.recentRuns}</h2><div className="mt-5 space-y-4">
-        {overview.recentRuns.map((run) => <article className="border border-line bg-stone-50 p-4" key={run.id}>
-          <div className="flex flex-wrap gap-2 text-xs text-stone-500"><span className="border border-ink px-2 py-0.5 text-ink">{run.status}</span><span>{run.graphName}</span><span>{date(run.startedAt)}</span></div>
-          <h3 className="mt-3 font-semibold">{run.personSlug ?? run.id}</h3>
-          <p className="mt-2 text-sm text-stone-600">{t.currentNode}: {run.currentNode ?? t.noValue} · {t.thread}: {run.threadId ?? t.noValue}</p>
-          {run.diagnosisSummary && <p className="mt-2 text-sm text-stone-600">{run.diagnosisSummary}</p>}
-          {run.errorMessage && <p className="mt-2 text-sm text-red-700">{run.errorMessage}</p>}
-        </article>)}
-        {overview.recentRuns.length === 0 && <p className="text-sm text-stone-500">{t.noData}</p>}
-      </div></div>
-      <div className="panel"><h2 className="text-lg font-semibold">{t.recentSubjects}</h2><div className="mt-5 space-y-4">
-        {overview.recentSubjects.map((subject) => <article className="border border-line bg-stone-50 p-4" key={subject.id}>
-          <div className="flex flex-wrap gap-2 text-xs text-stone-500"><span className="border border-ink px-2 py-0.5 text-ink">{subject.status}</span><span>{subject.personSlug}</span><span>{date(subject.updatedAt)}</span></div>
-          <p className="mt-3 text-sm text-stone-600">{t.risk}: {subject.riskLevel ?? t.noValue} · {t.governanceRun}: {subject.diagnosisRunId ?? t.noValue}</p>
-          {subject.holdReason && <p className="mt-2 text-sm text-stone-600">{subject.holdReason}</p>}
-        </article>)}
-        {overview.recentSubjects.length === 0 && <p className="text-sm text-stone-500">{t.noData}</p>}
-      </div></div>
-    </div>
-
-    <div className="grid gap-4 xl:grid-cols-2">
-      <div className="panel"><h2 className="text-lg font-semibold">{t.recentActions}</h2><div className="mt-5 space-y-4">
-        {overview.recentActions.map((action) => <article className="border border-line bg-stone-50 p-4" key={action.id}>
-          <div className="flex flex-wrap gap-2 text-xs text-stone-500"><span className="border border-ink px-2 py-0.5 text-ink">{action.status}</span><span>{action.actionCode}</span><span>{date(action.endedAt ?? action.startedAt)}</span></div>
-          <p className="mt-3 text-sm text-stone-600">{t.actionTitle}: {action.actionTitle ?? t.noValue}</p>
-          <p className="mt-2 text-sm text-stone-600">{t.idempotencyKey}: {action.idempotencyKey}</p>
-          {action.errorMessage && <p className="mt-2 text-sm text-red-700">{action.errorMessage}</p>}
-        </article>)}
-        {overview.recentActions.length === 0 && <p className="text-sm text-stone-500">{t.noData}</p>}
-      </div></div>
-      <div className="panel"><h2 className="text-lg font-semibold">{t.recentResults}</h2><div className="mt-5 space-y-4">
-        {overview.recentDiagnosisResults.map((result) => <article className="border border-line bg-stone-50 p-4" key={result.id}>
-          <div className="flex flex-wrap gap-2 text-xs text-stone-500"><span className="border border-ink px-2 py-0.5 text-ink">{result.status}</span><span>{result.personSlug ?? result.runId}</span><span>{date(result.createdAt)}</span></div>
-          <p className="mt-3 text-sm text-stone-600">{t.findings}: {result.findingCount ?? t.noValue} · {t.resultActions}: {result.actionCount ?? t.noValue}</p>
-          {result.summary && <p className="mt-2 text-sm text-stone-600">{result.summary}</p>}
-        </article>)}
-        {overview.recentDiagnosisResults.length === 0 && <p className="text-sm text-stone-500">{t.noData}</p>}
-      </div></div>
-    </div>
-  </section>;
+      )}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">{t("区 / 组", "Batches")}</h2>
+        {data.batches.map((batch) => (
+          <article key={batch.id} id={batch.id} className="panel space-y-3">
+            <div className="flex flex-wrap gap-2">
+              <Badge>
+                {batch.unitType} {batch.unitKey}
+              </Badge>
+              <Badge>{batch.status}</Badge>
+            </div>
+            <p className="text-sm">
+              {t("当前节点", "Current node")}:{" "}
+              <code>{batch.currentNode ?? "—"}</code>
+            </p>
+            <p className="text-sm">
+              {t("导入", "Imported")} {number(batch.summary?.importedRows)} ·{" "}
+              {t("修复", "Repairs")} {number(batch.summary?.repairs)} ·{" "}
+              {t("计划修复", "Planned repairs")}{" "}
+              {number(batch.summary?.plannedRepairs)} · unresolved{" "}
+              {number(batch.summary?.unresolved)}
+            </p>
+            <details>
+              <summary className="cursor-pointer text-sm">
+                Agent {t("执行记录", "executions")}
+              </summary>
+              <div className="mt-3 space-y-2">
+                {data.agents
+                  .filter((a) => a.batchId === batch.id)
+                  .map((a) => (
+                    <div
+                      key={a.id}
+                      className="border-t border-line pt-2 text-xs"
+                    >
+                      <code>{a.agentKey}</code> · {a.status} · v{a.agentVersion}
+                      <p className="mt-1 text-stone-500">
+                        LLM {number(a.metrics?.llmCalls)} · web{" "}
+                        {number(a.metrics?.networkCalls)} · tokens{" "}
+                        {number(
+                          Number(a.metrics?.inputTokens ?? 0) +
+                            Number(a.metrics?.outputTokens ?? 0),
+                        )}{" "}
+                        · {number(a.metrics?.durationMs)} ms
+                      </p>
+                    </div>
+                  ))}
+              </div>
+            </details>
+          </article>
+        ))}
+      </section>
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">
+          {t("治理问题与依据", "Findings and evidence")}
+        </h2>
+        {data.findings.map((f) => (
+          <article className="panel space-y-3" key={f.id}>
+            <div className="flex flex-wrap gap-2">
+              <Badge>{f.resolutionStatus}</Badge>
+              <Badge>{f.severity}</Badge>
+              <code className="text-xs">{f.findingCode}</code>
+            </div>
+            <p>{f.reason}</p>
+            <p className="break-all text-xs text-stone-500">{f.subjectRef}</p>
+            {f.evidence
+              .filter((e) => e.url && /^https?:\/\//.test(e.url))
+              .map((e, i) => (
+                <p key={i} className="text-sm">
+                  <a
+                    href={e.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline"
+                  >
+                    {e.url}
+                  </a>
+                  {e.quote && <span> — {e.quote.slice(0, 400)}</span>}
+                </p>
+              ))}
+          </article>
+        ))}
+        {!data.findings.length && (
+          <p className="text-stone-500">
+            {t("暂无治理问题记录。", "No findings recorded.")}
+          </p>
+        )}
+      </section>
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">{t("治理变更", "Changes")}</h2>
+        {data.changes.map((c) => (
+          <article className="panel space-y-2" key={c.id}>
+            <div className="flex flex-wrap gap-2">
+              <Badge>{c.status}</Badge>
+              <code className="text-xs">{c.operation}</code>
+            </div>
+            <p className="text-sm">{c.reason}</p>
+            {c.diff && (
+              <details>
+                <summary className="cursor-pointer text-sm">
+                  {t("变更前后", "Before / after")}
+                </summary>
+                <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-all text-xs">
+                  {JSON.stringify(c.diff, null, 2)}
+                </pre>
+              </details>
+            )}
+            <p className="break-all font-mono text-xs text-stone-500">
+              {c.entityRef}
+            </p>
+            {c.businessAuditRef && (
+              <p className="font-mono text-xs">
+                AuditLog: {c.businessAuditRef}
+              </p>
+            )}
+          </article>
+        ))}
+      </section>
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">
+          {t("邮件投递", "Mail delivery")}
+        </h2>
+        {data.notifications.map((n) => (
+          <article key={n.id} className="panel space-y-2 text-sm">
+            <Badge>{n.status}</Badge> <code>{n.kind}</code>
+            <p>
+              {t("尝试次数", "Attempts")}: {n.attemptCount}
+              {n.sentAt ? ` · ${n.sentAt}` : ""}
+            </p>
+            {n.errorMessage && <p>{n.errorMessage}</p>}
+          </article>
+        ))}
+      </section>
+      <p className="text-xs text-stone-500">
+        {t(
+          "最近 20 个任务；所选任务最多展示 300 个批次、100 条执行 / 问题 / 变更。",
+          "Latest 20 tasks; up to 300 batches and 100 executions / findings / changes for the selected task.",
+        )}
+      </p>
+    </section>
+  );
 }

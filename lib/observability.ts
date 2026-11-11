@@ -1,332 +1,126 @@
 import "server-only";
-
 import postgres from "postgres";
 
-type AgentDb = ReturnType<typeof postgres>;
-
-type CountRow = {
-  status: string;
-  count: number;
-};
-
-type RecentRunRow = {
-  id: string;
-  graphName: string;
-  status: string;
-  currentNode: string | null;
-  threadId: string | null;
-  startedAt: Date;
-  endedAt: Date | null;
-  errorMessage: string | null;
-  diagnosisStatus: string | null;
-  diagnosisSummary: string | null;
-  personSlug: string | null;
-};
-
-type RecentSubjectRow = {
-  id: string;
-  batchId: string;
-  personId: string;
-  personSlug: string;
-  status: string;
-  riskLevel: string | null;
-  diagnosisRunId: string | null;
-  holdReason: string | null;
-  completedAt: Date | null;
-  updatedAt: Date;
-};
-
-type RecentActionRow = {
-  id: string;
-  subjectId: string;
-  actionCode: string;
-  status: string;
-  idempotencyKey: string;
-  actionTitle: string | null;
-  startedAt: Date | null;
-  endedAt: Date | null;
-  errorMessage: string | null;
-};
-
-type RecentDiagnosisRow = {
-  id: string;
-  runId: string;
-  status: string;
-  personSlug: string | null;
-  summary: string | null;
-  findingCount: number | null;
-  actionCount: number | null;
-  createdAt: Date;
-};
-
-export type ObservabilityOverview = {
+type Json = Record<string, unknown>;
+export type GovernanceOverview = {
   source: "configured" | "missing" | "error";
-  updatedAt: string | null;
-  counts: {
-    agentRuns: Record<string, number>;
-    governanceBatches: Record<string, number>;
-    governanceSubjects: Record<string, number>;
-    actionExecutions: Record<string, number>;
-  };
-  recentRuns: Array<{
+  tasks: Array<{
     id: string;
-    graphName: string;
+    mode: string;
     status: string;
-    currentNode: string | null;
-    threadId: string | null;
-    startedAt: string;
-    endedAt: string | null;
-    errorMessage: string | null;
-    diagnosisStatus: string | null;
-    diagnosisSummary: string | null;
-    personSlug: string | null;
+    createdAt: string;
+    completedAt: string | null;
+    summary: Json | null;
   }>;
-  recentSubjects: Array<{
+  selectedTaskId: string | null;
+  batches: Array<{
+    id: string;
+    unitType: string;
+    unitKey: string;
+    sequence: number;
+    status: string;
+    summary: Json | null;
+    currentNode: string | null;
+  }>;
+  agents: Array<{
     id: string;
     batchId: string;
-    personId: string;
-    personSlug: string;
+    agentKey: string;
+    agentVersion: string;
     status: string;
-    riskLevel: string | null;
-    diagnosisRunId: string | null;
-    holdReason: string | null;
-    completedAt: string | null;
-    updatedAt: string;
+    metrics: Json | null;
   }>;
-  recentActions: Array<{
+  findings: Array<{
     id: string;
-    subjectId: string;
-    actionCode: string;
+    batchId: string;
+    findingCode: string;
+    subjectRef: string;
+    severity: string;
+    resolutionStatus: string;
+    reason: string;
+    evidence: Array<{ url?: string; quote?: string }>;
+  }>;
+  notifications: Array<{
+    id: string;
+    batchId: string | null;
+    kind: string;
     status: string;
-    idempotencyKey: string;
-    actionTitle: string | null;
-    startedAt: string | null;
-    endedAt: string | null;
+    attemptCount: number;
+    sentAt: string | null;
     errorMessage: string | null;
   }>;
-  recentDiagnosisResults: Array<{
+  changes: Array<{
     id: string;
-    runId: string;
+    batchId: string;
+    operation: string;
+    entityRef: string;
     status: string;
-    personSlug: string | null;
-    summary: string | null;
-    findingCount: number | null;
-    actionCount: number | null;
-    createdAt: string;
+    businessAuditRef: string | null;
+    reason: string | null;
+    diff: { before: unknown; after: unknown } | null;
   }>;
-  note: string;
 };
-
-let agentDb: AgentDb | null = null;
-
-function getAgentDb() {
-  const databaseUrl = process.env.TASUKI_KEIFU_AGENT_DATABASE_URL?.trim();
-
-  if (!databaseUrl) {
-    return null;
-  }
-
-  if (!agentDb) {
-    agentDb = postgres(databaseUrl, {
+let db: ReturnType<typeof postgres> | null = null;
+export async function getObservabilityOverview(
+  taskId?: string,
+): Promise<GovernanceOverview> {
+  const empty: GovernanceOverview = {
+    source: "missing",
+    tasks: [],
+    selectedTaskId: null,
+    batches: [],
+    agents: [],
+    findings: [],
+    changes: [],
+    notifications: [],
+  };
+  const url = process.env.TASUKI_GOVERNANCE_READ_DATABASE_URL?.trim();
+  if (!url) return empty;
+  if (!db)
+    db = postgres(url, {
       max: 2,
-      idle_timeout: 10,
+      idle_timeout: 20,
       connect_timeout: 5,
+      prepare: false,
+      connection: { application_name: "personal-site-governance-readonly" },
     });
-  }
-
-  return agentDb;
-}
-
-function toIso(value: Date | null | undefined) {
-  return value ? value.toISOString() : null;
-}
-
-function normalizeCounts(rows: CountRow[]) {
-  return Object.fromEntries(rows.map((row) => [row.status, row.count])) as Record<string, number>;
-}
-
-export async function getObservabilityOverview(): Promise<ObservabilityOverview> {
-  const db = getAgentDb();
-
-  if (!db) {
-    return {
-      source: "missing",
-      updatedAt: null,
-      counts: {
-        agentRuns: {},
-        governanceBatches: {},
-        governanceSubjects: {},
-        actionExecutions: {},
-      },
-      recentRuns: [],
-      recentSubjects: [],
-      recentActions: [],
-      recentDiagnosisResults: [],
-      note: "未配置 `TASUKI_KEIFU_AGENT_DATABASE_URL`。",
-    };
-  }
-
   try {
-    const [agentRunStatusRows, batchStatusRows, subjectStatusRows, actionStatusRows, updatedAtRows] = await Promise.all([
-      db<CountRow[]>`
-        select status, count(*)::int as count
-        from "AgentRun"
-        group by "status"
-        order by "status"
-      `,
-      db<CountRow[]>`
-        select status, count(*)::int as count
-        from "GovernanceBatch"
-        group by "status"
-        order by "status"
-      `,
-      db<CountRow[]>`
-        select status, count(*)::int as count
-        from "GovernanceSubject"
-        group by "status"
-        order by "status"
-      `,
-      db<CountRow[]>`
-        select status, count(*)::int as count
-        from "ActionExecution"
-        group by "status"
-        order by "status"
-      `,
-      db<{ updatedAt: Date | null }[]>`
-        select max(ts) as "updatedAt"
-        from (
-          select "updatedAt" as ts from "AgentRun"
-          union all
-          select "updatedAt" as ts from "GovernanceBatch"
-          union all
-          select "updatedAt" as ts from "GovernanceSubject"
-          union all
-          select "updatedAt" as ts from "ActionExecution"
-          union all
-          select "updatedAt" as ts from "DiagnosisResult"
-        ) as activity
-      `,
-    ]);
-
-    const [recentRuns, recentSubjects, recentActions, recentDiagnosisResults] = await Promise.all([
-      db<RecentRunRow[]>`
-        select
-          r.id,
-          r."graphName" as "graphName",
-          r.status,
-          r."currentNode" as "currentNode",
-          r."threadId" as "threadId",
-          r."startedAt" as "startedAt",
-          r."endedAt" as "endedAt",
-          r."errorMessage" as "errorMessage",
-          d.status as "diagnosisStatus",
-          d.summary as "diagnosisSummary",
-          d."personSlug" as "personSlug"
-        from "AgentRun" r
-        left join "DiagnosisResult" d on d."runId" = r.id
-        order by r."startedAt" desc
-        limit 8
-      `,
-      db<RecentSubjectRow[]>`
-        select
-          s.id,
-          s."batchId" as "batchId",
-          s."personId" as "personId",
-          s."personSlug" as "personSlug",
-          s.status,
-          s."riskLevel" as "riskLevel",
-          s."diagnosisRunId" as "diagnosisRunId",
-          s."holdReason" as "holdReason",
-          s."completedAt" as "completedAt",
-          s."updatedAt" as "updatedAt"
-        from "GovernanceSubject" s
-        order by s."updatedAt" desc
-        limit 8
-      `,
-      db<RecentActionRow[]>`
-        select
-          a.id,
-          a."subjectId" as "subjectId",
-          a."actionCode" as "actionCode",
-          a.status,
-          a."idempotencyKey" as "idempotencyKey",
-          coalesce(a.action->>'title', a."actionCode") as "actionTitle",
-          a."startedAt" as "startedAt",
-          a."endedAt" as "endedAt",
-          a."errorMessage" as "errorMessage"
-        from "ActionExecution" a
-        order by a."updatedAt" desc
-        limit 8
-      `,
-      db<RecentDiagnosisRow[]>`
-        select
-          d.id,
-          d."runId" as "runId",
-          d.status,
-          d."personSlug" as "personSlug",
-          d.summary,
-          case
-            when jsonb_typeof(d.findings) = 'array' then jsonb_array_length(d.findings)
-            else null
-          end as "findingCount",
-          case
-            when jsonb_typeof(d.actions) = 'array' then jsonb_array_length(d.actions)
-            else null
-          end as "actionCount",
-          d."createdAt" as "createdAt"
-        from "DiagnosisResult" d
-        order by d."createdAt" desc
-        limit 8
-      `,
-    ]);
-
+    // Explicit projection: never expose inputManifest, payload references, prompt/state, or patches.
+    const tasks = await db<
+      GovernanceOverview["tasks"]
+    >`SELECT id,mode,status,"createdAt","completedAt",summary FROM governance."EventImportTask" ORDER BY "createdAt" DESC LIMIT 20`;
+    const selected =
+      taskId && /^[0-9a-f-]{36}$/i.test(taskId) ? taskId : tasks[0]?.id;
+    if (!selected) return { ...empty, source: "configured", tasks };
+    const [batches, agents, findings, changes, notifications] =
+      await Promise.all([
+        db<
+          GovernanceOverview["batches"]
+        >`SELECT b.id,b."unitType",b."unitKey",b.sequence,b.status,b.summary,(SELECT a.metrics->>'currentNode' FROM governance."BatchAttempt" a WHERE a."batchId"=b.id ORDER BY a."attemptNo" DESC LIMIT 1) AS "currentNode" FROM governance."GovernanceBatch" b WHERE b."eventTaskId"=${selected} ORDER BY b.sequence LIMIT 300`,
+        db<
+          GovernanceOverview["agents"]
+        >`SELECT a.id,t."batchId",a."agentKey",a."agentVersion",a.status,a.metrics FROM governance."AgentExecution" a JOIN governance."BatchAttempt" t ON t.id=a."batchAttemptId" JOIN governance."GovernanceBatch" b ON b.id=t."batchId" WHERE b."eventTaskId"=${selected} ORDER BY a."startedAt" DESC LIMIT 100`,
+        db<
+          GovernanceOverview["findings"]
+        >`SELECT f.id,f."batchId",f."findingCode",f."subjectRef",f.severity,f."resolutionStatus",f.reason,COALESCE(f."detailsAndEvidence"->'evidence','[]'::jsonb) AS evidence FROM governance."GovernanceFinding" f JOIN governance."GovernanceBatch" b ON b.id=f."batchId" WHERE b."eventTaskId"=${selected} ORDER BY (f."resolutionStatus"='unresolved') DESC,f."createdAt" DESC LIMIT 100`,
+        db<
+          GovernanceOverview["changes"]
+        >`SELECT c.id,c."batchId",c.operation,c."entityRef",c.status,c."businessAuditRef",c."patchAndEvidence"->>'reason' AS reason,c."patchAndEvidence"->'appliedDiff' AS diff FROM governance."GovernanceChange" c JOIN governance."GovernanceBatch" b ON b.id=c."batchId" WHERE b."eventTaskId"=${selected} ORDER BY c."createdAt" DESC LIMIT 100`,
+        db<
+          GovernanceOverview["notifications"]
+        >`SELECT n.id,n."batchId",n.kind,n.status,n."attemptCount",n."sentAt",n."errorMessage" FROM governance."NotificationDelivery" n LEFT JOIN governance."GovernanceBatch" b ON b.id=n."batchId" WHERE n."eventTaskId"=${selected} OR b."eventTaskId"=${selected} ORDER BY n."createdAt" DESC LIMIT 100`,
+      ]);
     return {
       source: "configured",
-      updatedAt: toIso(updatedAtRows[0]?.updatedAt ?? null),
-      counts: {
-        agentRuns: normalizeCounts(agentRunStatusRows),
-        governanceBatches: normalizeCounts(batchStatusRows),
-        governanceSubjects: normalizeCounts(subjectStatusRows),
-        actionExecutions: normalizeCounts(actionStatusRows),
-      },
-      recentRuns: recentRuns.map((row) => ({
-        ...row,
-        startedAt: row.startedAt.toISOString(),
-        endedAt: toIso(row.endedAt),
-      })),
-      recentSubjects: recentSubjects.map((row) => ({
-        ...row,
-        completedAt: toIso(row.completedAt),
-        updatedAt: row.updatedAt.toISOString(),
-      })),
-      recentActions: recentActions.map((row) => ({
-        ...row,
-        startedAt: toIso(row.startedAt),
-        endedAt: toIso(row.endedAt),
-      })),
-      recentDiagnosisResults: recentDiagnosisResults.map((row) => ({
-        ...row,
-        createdAt: row.createdAt.toISOString(),
-      })),
-      note: "只读读取 agent 运行库，不包含原始输入输出。",
+      tasks,
+      selectedTaskId: selected,
+      batches,
+      agents,
+      findings,
+      changes,
+      notifications,
     };
-  } catch (error) {
-    console.error("observability_overview_failed", error);
-
-    return {
-      source: "error",
-      updatedAt: null,
-      counts: {
-        agentRuns: {},
-        governanceBatches: {},
-        governanceSubjects: {},
-        actionExecutions: {},
-      },
-      recentRuns: [],
-      recentSubjects: [],
-      recentActions: [],
-      recentDiagnosisResults: [],
-      note: "读取 agent 数据失败。",
-    };
+  } catch {
+    return { ...empty, source: "error" };
   }
 }
