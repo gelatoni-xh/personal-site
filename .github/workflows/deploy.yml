@@ -63,7 +63,9 @@ jobs:
             printf '%s\n' \
               'PERSONAL_SITE_IMAGE=personal-site:latest' \
               'NEXT_PUBLIC_SITE_URL=https://gelatoni.uk' \
-              'TASUKI_KEIFU_AGENT_DATABASE_URL=${{ secrets.TASUKI_KEIFU_AGENT_DATABASE_URL }}' \
+              'TASUKI_GOVERNANCE_READ_DATABASE_URL=${{ secrets.TASUKI_GOVERNANCE_READ_DATABASE_URL }}' \
+              'OBSERVABILITY_USERNAME=${{ secrets.OBSERVABILITY_USERNAME }}' \
+              'OBSERVABILITY_PASSWORD=${{ secrets.OBSERVABILITY_PASSWORD }}' \
               > /opt/apps/personal-site/.env
             sudo docker load -i /tmp/personal-site-deploy/personal-site-image.tar.gz
             cd /opt/apps/personal-site
