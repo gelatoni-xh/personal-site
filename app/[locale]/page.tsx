@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublishedArticles, type Locale } from "@/lib/content/articles";
 import { getMessages } from "@/lib/i18n";
-import { GovernanceAccess } from "@/components/governance-access";
 
 interface Props { params: Promise<{ locale: string }> }
 
@@ -33,7 +32,6 @@ export default async function LocaleHome({ params }: Props) {
         <Link className="border border-ink bg-ink px-4 py-2 text-sm text-white" href={`/${locale}/articles`}>{messages.readArticles}</Link>
         <a className="border border-line bg-white px-4 py-2 text-sm text-ink" href="https://github.com/gelatoni-xh">GitHub</a>
         <a className="border border-line bg-white px-4 py-2 text-sm text-ink" href="https://tasukikeifu.com">Tasuki Keifu</a>
-        <GovernanceAccess locale={language} />
       </div>
       <div className="mt-16 border-t border-line pt-8">
         <h2 className="text-lg font-semibold">{messages.recentWriting}</h2>
