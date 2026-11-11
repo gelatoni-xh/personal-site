@@ -12,7 +12,7 @@ export function GovernanceAccess({ locale }: Props) {
     : { login: "Admin login" };
 
   return (
-    <Link className="nav-link border-moss text-moss hover:bg-moss hover:text-white" href={`/${locale}/observability`}>
+    <Link className="nav-link border-moss text-moss hover:bg-moss hover:text-white" href={`/${locale}/observability/login`}>
       {labels.login}
     </Link>
   );
