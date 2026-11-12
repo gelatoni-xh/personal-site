@@ -21,7 +21,11 @@ function Badge({ children }: { children: React.ReactNode }) {
     </span>
   );
 }
+const records = (value: unknown): Record<string, unknown>[] => Array.isArray(value)
+  ? value.filter((item): item is Record<string, unknown> => !!item && typeof item === "object") : [];
 const number = (v: unknown) => Number(v ?? 0).toLocaleString();
+const metric = (v: unknown, suffix = "") =>
+  v === null || v === undefined ? "—" : `${number(v)}${suffix}`;
 export default async function ObservabilityPage({
   params,
   searchParams,
@@ -31,6 +35,15 @@ export default async function ObservabilityPage({
   const t = (zh: string, en: string) => (locale === "zh" ? zh : en);
   const data = await getObservabilityOverview((await searchParams).task);
   const current = data.tasks.find((task) => task.id === data.selectedTaskId);
+  const metrics = current?.summary?.observability as
+    | Record<string, unknown>
+    | undefined;
+  const modelUsage = Array.isArray(metrics?.modelUsage)
+    ? metrics.modelUsage.filter(
+        (item): item is Record<string, unknown> =>
+          !!item && typeof item === "object",
+      )
+    : [];
   return (
     <section className="space-y-8">
       <header className="border-b border-line pb-6">
@@ -88,6 +101,53 @@ export default async function ObservabilityPage({
             {number(current.summary?.plannedRepairs)} · unresolved{" "}
             {number(current.summary?.unresolved)}
           </p>
+          {metrics && (
+            <div className="space-y-4 border-t border-line pt-4">
+              <div>
+                <h2 className="mb-2 text-sm font-semibold">
+                  {t("运行性能", "Runtime")}
+                </h2>
+                <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm md:grid-cols-4">
+                  <div><dt className="text-stone-500">{t("赛事耗时", "Event duration")}</dt><dd className="font-mono">{metric(metrics.eventDurationMs, " ms")}</dd></div>
+                  <div><dt className="text-stone-500">{t("排队等待", "Queue wait")}</dt><dd className="font-mono">{metric(metrics.queueWaitMs, " ms")}</dd></div>
+                  <div><dt className="text-stone-500">{t("尝试 / 重试", "Attempts / retries")}</dt><dd className="font-mono">{metric(metrics.attemptCount)} / {metric(metrics.retryCount)}</dd></div>
+                  <div><dt className="text-stone-500">{t("尝试执行耗时", "Attempt time")}</dt><dd className="font-mono">{metric(metrics.attemptDurationMs, " ms")}</dd></div>
+                  <div><dt className="text-stone-500">{t("重试耗时", "Retry time")}</dt><dd className="font-mono">{metric(metrics.retryDurationMs, " ms")}</dd></div>
+                  <div><dt className="text-stone-500">{t("Agent 执行 / 累计耗时", "Agent runs / total time")}</dt><dd className="font-mono">{metric(metrics.agentExecutions)} / {metric(metrics.agentDurationMs, " ms")}</dd></div>
+                </dl>
+              </div>
+              <div>
+                <h2 className="mb-2 text-sm font-semibold">
+                  {t("成本与治理效果", "Cost and outcomes")}
+                </h2>
+                <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm md:grid-cols-4">
+                  <div><dt className="text-stone-500">LLM / 网络查询</dt><dd className="font-mono">{metric(metrics.llmCalls)} / {metric(metrics.networkCalls)}</dd></div>
+                  <div><dt className="text-stone-500">Tokens · input / output</dt><dd className="font-mono">{metric(metrics.inputTokens)} / {metric(metrics.outputTokens)}</dd></div>
+                  <div><dt className="text-stone-500">{t("估算费用", "Estimated cost")}</dt><dd className="font-mono">{(metrics.estimatedCostUsd == null || (Number(metrics.llmCalls) > 0 && metrics.costKnown !== true && Number(metrics.estimatedCostUsd) === 0)) ? t("未知", "Unknown") : `$${Number(metrics.estimatedCostUsd).toFixed(6)}`}</dd></div>
+                  <div><dt className="text-stone-500">{t("规则判断", "Rule decisions")}</dt><dd className="font-mono">{metric(metrics.ruleDecisions)}</dd></div>
+                  <div><dt className="text-stone-500">resolved / unresolved</dt><dd className="font-mono">{metric(metrics.resolved)} / {metric(metrics.unresolvedFindings)}</dd></div>
+                  <div><dt className="text-stone-500">{t("每导入行成本", "Cost / imported row")}</dt><dd className="font-mono">{metrics.costPerImportedRowUsd == null ? "—" : `$${Number(metrics.costPerImportedRowUsd).toFixed(6)}`}</dd></div>
+                  <div><dt className="text-stone-500">{t("每计划行成本", "Cost / planned row")}</dt><dd className="font-mono">{metrics.costPerPlannedRowUsd == null ? "—" : `$${Number(metrics.costPerPlannedRowUsd).toFixed(6)}`}</dd></div>
+                </dl>
+                {modelUsage.length > 0 && (
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="border-b border-line text-stone-500">
+                        <tr><th className="py-2 pr-4">{t("模型", "Model")}</th><th className="py-2 pr-4">{t("调用", "Calls")}</th><th className="py-2 pr-4">Input tokens</th><th className="py-2">Output tokens</th></tr>
+                      </thead>
+                      <tbody>
+                        {modelUsage.map((item, index) => (
+                          <tr className="border-b border-line last:border-0" key={`${String(item.model)}-${index}`}>
+                            <td className="py-2 pr-4 font-mono">{String(item.model ?? "—")}</td><td className="py-2 pr-4 font-mono">{metric(item.calls)}</td><td className="py-2 pr-4 font-mono">{metric(item.inputTokens)}</td><td className="py-2 font-mono">{metric(item.outputTokens)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
       <section className="space-y-4">
@@ -133,6 +193,40 @@ export default async function ObservabilityPage({
                         )}{" "}
                         · {number(a.metrics?.durationMs)} ms
                       </p>
+                      {records(a.metrics?.normalizationStages).length > 0 && (
+                        <div className="mt-3 overflow-x-auto">
+                          <table className="w-full text-left">
+                            <caption className="text-left font-medium">{t("归一化阶段", "Normalization stages")}</caption>
+                            <thead><tr><th>{t("阶段", "Stage")}</th><th>{t("输入", "Input")}</th><th>{t("本阶段解决", "Resolved in stage")}</th><th>{t("剩余", "Remaining")}</th><th>ms</th></tr></thead>
+                            <tbody>{records(a.metrics?.normalizationStages).map((stage, i) => (
+                              <tr key={i}><td className="pr-3 font-mono">{String(stage.stage)}</td><td>{metric(stage.inputCount)}</td><td>{metric(stage.resolvedCount)}</td><td>{metric(stage.remainingCount)}</td><td>{metric(stage.durationMs)}</td></tr>
+                            ))}</tbody>
+                          </table>
+                          <p className="mt-1 text-stone-500">{t("阶段解决数口径不同，不累加为最终解决人数。", "Stage counts have different scopes; do not sum them as final resolved people.")}</p>
+                        </div>
+                      )}
+                      {a.metrics?.normalizationSummary != null && (
+                        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-stone-500">
+                          {[
+                            ["crossCheckIssues", t("交叉问题", "Cross-check issues")],
+                            ["organizationCorrections", t("组织修正", "Organization corrections")],
+                            ["affectedPeople", t("受影响选手", "Affected people")],
+                            ["reassessedPeople", t("模型重评选手", "People reassessed by model")],
+                            ["affectedPeopleResolved", t("受影响选手最终解决", "Affected people finally resolved")],
+                          ].map(([key, label]) => <span key={key}>{label}: {metric((a.metrics?.normalizationSummary as Record<string, unknown> | undefined)?.[key])}</span>)}
+                        </div>
+                      )}
+                      {records(a.metrics?.researchCalls).length > 0 && (
+                        <div className="mt-3 overflow-x-auto">
+                          <table className="w-full text-left">
+                            <caption className="text-left font-medium">{t("模型物理请求", "Physical model requests")}</caption>
+                            <thead><tr><th>{t("类型 / 阶段", "Category / stage")}</th><th>{t("对象数", "Items")}</th><th>Tokens in / out</th><th>ms</th><th>{t("停止原因", "Stop reason")}</th></tr></thead>
+                            <tbody>{records(a.metrics?.researchCalls).map((call, i) => (
+                              <tr key={i}><td className="pr-3 font-mono">{String(call.category)} / {String(call.stage ?? "—")}</td><td>{metric(call.itemCount)}</td><td>{metric(call.inputTokens)} / {metric(call.outputTokens)}</td><td>{metric(call.durationMs)}</td><td>{String(call.stoppedReason ?? "—")}</td></tr>
+                            ))}</tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
                   ))}
               </div>
