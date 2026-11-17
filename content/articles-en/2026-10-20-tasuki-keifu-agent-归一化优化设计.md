@@ -81,3 +81,40 @@ Each graph run would still focus on one primary person. A person would normally 
 The source later records rule-based recall and ambiguous-candidate detection as implemented. `research_name_identity` used a local Codex provider with `gpt-5.4`, first trying Responses API web search and falling back to Chat Completions when the intermediary did not support search. It returned `same`, `different`, or `uncertain`, with a summary, reasoning, and source pattern. `same` became `duplicate_normalized_name`, `different` left a note, and `uncertain` became a finding. LLM requests were separately visible in LangSmith as `research_name_identity_llm`; the API key was read at runtime from local Codex configuration rather than stored in the project.
 
 The continuing principles were to keep identity work name-first, reuse established finding codes, avoid extra LLM cost for ordinary cases, treat unexpectedly broad candidate sets as a rule or import problem, and establish a small working loop before expanding the evidence system.
+
+## Round Closure (2026-11-18)
+
+This round expanded from name-based candidate recall to organization boundaries, person normalization, Membership writes, and recoverable manual review during event imports. The following items were implemented, deployed, or applied to production data. This closes the round; future optimization work should use a new document.
+
+### 1. Separate unconfirmed entry labels from formal organizations
+
+`club`, `company`, and `unknown` are now treated as unconfirmed race-entry labels. They do not create public Organizations or Memberships and are not standalone evidence for person identity. The source-visible label remains on the race result through `RaceResult.organizationNameSnapshot`. Local athletics associations, university clubs, and temporary representative labels follow the same boundary. Only evidence that supports a school or stable corporate team can create a formal organization and Membership.
+
+The migration writes the source snapshot before clearing unconfirmed organization foreign keys, memberships, and public organization records, while retaining source mappings and audit entries. This prevents a hard-to-verify race label from blocking person normalization or becoming a long-lived organization profile.
+
+### 2. Route person normalization by evidence
+
+- Same kana with different written characters is a candidate signal, not proof of identity.
+- Under an unconfirmed organization, a person can be normalized directly when that source label maps to one athlete in the batch, the database has exactly one same-name candidate, and no birth-date conflict exists. No organization or Membership is created.
+- Missing characters, OCR variants, and same-reading collisions go through an explainable lightweight assessment or bounded heavy research. An inconclusive result remains a finding and does not block other supported writes.
+- DNS, DNF, and DQ remain race records. Starter status affects `isStarter`; it is not a default identity block.
+
+### 3. Membership boundary
+
+School and confirmed corporate-team evidence from an event can enter Membership governance. When an academic year is unavailable, a source Membership may be written without dates; reliable school-stage anchors are required for date inference. Only overlapping schools or organizations in the same stage need identity review. Membership governance can be rerun independently, without replaying the whole event.
+
+### 4. Research and failure handling
+
+Heavy research now has bounded timeouts, finite retries, request/response diagnostics, structured-output validation, and persisted budget exhaustion. Cross-check input is deduplicated and reduced to a structured summary while retaining the group overview and key evidence, instead of sending an entire batch verbatim. Failed or inconclusive research leaves an explainable finding and lets other people continue; only a real write or recovery blocker stops a batch.
+
+### 5. Final review of the 333rd Nittai event
+
+The complete incremental governance run used the 333rd Nittai event as its validation case:
+
+- `2189 野翔太郎`: the source name omitted `﨑/崎`, but kana, Hosei history, and performance continuity matched. Both temporary records and results were merged into `野﨑翔太郎`.
+- `2352 佐藤広人`: only the reading matched `佐藤大翔`, whose affiliation conflicted; `佐藤広知` had a different reading. A separate person was kept instead of forcing a merge.
+- Both findings were audited and marked `resolved`; the event task ended with `unresolved=0`.
+
+### Closure
+
+The stable rule from this round is: write complete race data first, then use rules, lightweight assessment, and bounded heavy research for explainable identity decisions. When evidence is insufficient, retain the evidence and finding instead of promoting an uncertain race label into a formal Organization or Membership. A new systemic issue from a future event should be recorded in a new optimization document rather than reopening this closed round.
