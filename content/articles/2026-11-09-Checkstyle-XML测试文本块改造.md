@@ -1,5 +1,5 @@
 ---
-title: "Checkstyle #21417：将多行字符串拼接替换为文本块以提升可读性"
+title: "[Merged] Checkstyle #21417：将多行字符串拼接替换为文本块以提升可读性"
 date: "2026-11-09"
 summary: "将两个测试类中的 XML 字符串拼接改为 Java 文本块，在保留跨平台输出的同时处理 CI 反馈，并完成首次上游合并。"
 category: "open-source"

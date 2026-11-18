@@ -107,3 +107,7 @@ The server-side `.env` should set:
 PERSONAL_SITE_IMAGE=personal-site:latest
 NEXT_PUBLIC_SITE_URL=https://gelatoni.uk
 ```
+
+## Data governance observability
+
+The governance dashboard is served by the Tasuki Keifu data site at `/zh/observability` and `/en/observability`.
