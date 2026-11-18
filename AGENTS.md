@@ -42,9 +42,6 @@ Repository secrets are expected:
 - `UBUNTU3_HOST`
 - `UBUNTU3_USER`
 - `UBUNTU3_SSH_KEY`
-- `TASUKI_GOVERNANCE_READ_DATABASE_URL`
-- `OBSERVABILITY_USERNAME`
-- `OBSERVABILITY_PASSWORD`
 
 The deploy key is project-specific and stored locally at:
 
@@ -65,4 +62,3 @@ Article frontmatter fields:
 - `published`: optional boolean, defaults to true
 
 Keep Markdown plain. Do not introduce MDX unless the user asks for embedded React components inside articles.
-`/observability` is the read-only agent dashboard for recent runs and governance results.

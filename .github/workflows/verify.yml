@@ -16,6 +16,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: node --test scripts/check-governance-display.mjs
       - run: pnpm check:articles
       - run: pnpm build

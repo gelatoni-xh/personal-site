@@ -22,7 +22,6 @@ pnpm install
 pnpm dev
 ```
 
-For local dashboard access, set the optional `TASUKI_GOVERNANCE_READ_DATABASE_URL` in `.env.local`, which is ignored by Git. Without this variable, `/observability` displays a missing-configuration notice.
 
 Open:
 
@@ -31,7 +30,6 @@ http://localhost:3000/en/articles
 ```
 
 The root path redirects to `/en`. Existing `/articles` links redirect to the Chinese edition at `/zh/articles`.
-`/observability` shows the read-only agent dashboard.
 
 Before opening a pull request, validate the content, generated route types, and production build:
 
@@ -87,9 +85,6 @@ Required GitHub repository secrets:
 UBUNTU3_HOST
 UBUNTU3_USER
 UBUNTU3_SSH_KEY
-TASUKI_GOVERNANCE_READ_DATABASE_URL
-OBSERVABILITY_USERNAME
-OBSERVABILITY_PASSWORD
 ```
 
 `UBUNTU3_SSH_KEY` uses a project-specific deploy key stored locally at:
@@ -113,6 +108,6 @@ PERSONAL_SITE_IMAGE=personal-site:latest
 NEXT_PUBLIC_SITE_URL=https://gelatoni.uk
 ```
 
-## Data governance v2
+## Data governance observability
 
-The event-oriented governance dashboard uses the dedicated read-only `TASUKI_GOVERNANCE_READ_DATABASE_URL` connection to the main business database. See [`docs/governance-v2.md`](docs/governance-v2.md) for the projection, grants, deployment secret, and exposed fields.
+The governance dashboard is served by the Tasuki Keifu data site at `/zh/observability` and `/en/observability`.
