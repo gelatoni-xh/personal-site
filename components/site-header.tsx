@@ -25,7 +25,6 @@ export function SiteHeader() {
       <nav className="flex flex-wrap items-center gap-1 text-sm" aria-label="Primary navigation">
         <a className="nav-link" href="https://tasukikeifu.com" rel="noreferrer" target="_blank">Tasuki Keifu</a>
         <Link className="nav-link" href={`${base}/articles`}>{messages.nav.writing}</Link>
-        <Link className="nav-link" href={`${base}/observability`}>{messages.nav.observability}</Link>
       </nav>
     </div>
   </header>;

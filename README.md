@@ -22,7 +22,6 @@ pnpm install
 pnpm dev
 ```
 
-For local dashboard access, set the optional `TASUKI_KEIFU_AGENT_DATABASE_URL` in `.env.local`, which is ignored by Git. Without this variable, `/observability` displays a missing-configuration notice.
 
 Open:
 
@@ -31,7 +30,6 @@ http://localhost:3000/en/articles
 ```
 
 The root path redirects to `/en`. Existing `/articles` links redirect to the Chinese edition at `/zh/articles`.
-`/observability` shows the read-only agent dashboard.
 
 Before opening a pull request, validate the content, generated route types, and production build:
 
@@ -87,7 +85,6 @@ Required GitHub repository secrets:
 UBUNTU3_HOST
 UBUNTU3_USER
 UBUNTU3_SSH_KEY
-TASUKI_KEIFU_AGENT_DATABASE_URL
 ```
 
 `UBUNTU3_SSH_KEY` uses a project-specific deploy key stored locally at:
